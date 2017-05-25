@@ -79,8 +79,15 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-lang-ruby</artifactId>
-      <optional>true</optional>
-    </dependency>
+	  <optional>true</optional>
+	</dependency>
+	<dependency>
+	  <groupId>org.jruby</groupId>
+	  <artifactId>jruby-complete</artifactId>
+	  <version>9.1.9.0</version>
+	  <scope>provided</scope>
+	  <optional>true</optional>
+	</dependency>
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-lang-js</artifactId>
