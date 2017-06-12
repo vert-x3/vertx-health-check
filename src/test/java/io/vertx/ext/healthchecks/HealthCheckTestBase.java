@@ -33,6 +33,10 @@ public class HealthCheckTestBase {
     router.post("/post-health/*").handler(BodyHandler.create());
     router.post("/post-health*").handler(handler);
 
+    Router sub = Router.router(vertx);
+    sub.get("/ping*").handler(handler);
+    router.mountSubRouter("/prefix", sub);
+
     AtomicBoolean done = new AtomicBoolean();
     vertx.createHttpServer()
       .requestHandler(router::accept)
@@ -63,8 +67,26 @@ public class HealthCheckTestBase {
     return new JsonObject(json);
   }
 
+  static JsonObject getWithPrefix(int status) {
+    String json = RestAssured.get("/prefix/ping")
+      .then()
+      .statusCode(status)
+      .header("content-type", "application/json;charset=UTF-8")
+      .extract().asString();
+    return new JsonObject(json);
+  }
+
   static JsonObject get(String path, int status) {
     String json = RestAssured.get("/health/" + path)
+      .then()
+      .statusCode(status)
+      .header("content-type", "application/json;charset=UTF-8")
+      .extract().asString();
+    return new JsonObject(json);
+  }
+
+  static JsonObject getWithPrefix(String path, int status) {
+    String json = RestAssured.get("/prefix/ping/" + path)
       .then()
       .statusCode(status)
       .header("content-type", "application/json;charset=UTF-8")

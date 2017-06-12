@@ -11,9 +11,9 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.AuthProvider;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
+import io.vertx.ext.healthchecks.HealthChecks;
 import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.healthchecks.HealthChecks;
 
 import java.util.Objects;
 
@@ -49,7 +49,15 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
 
   @Override
   public void handle(RoutingContext rc) {
-    String id = rc.request().path().substring(rc.currentRoute().getPath().length());
+    String path = rc.request().path();
+    String route = rc.currentRoute().getPath();
+    if (! path.startsWith(route)) {
+      // We have a prefix  (sub-router)
+      int indexOfRoot = path.indexOf(route);
+      path = path.substring(indexOfRoot);
+    }
+    String id = path.substring(route.length());
+
     if (authProvider != null) {
       // Copy all HTTP header in a json array and params
       JsonObject authData = new JsonObject();
