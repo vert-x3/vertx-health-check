@@ -6,8 +6,8 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.ext.auth.AuthProvider;
-import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.healthchecks.impl.HealthCheckHandlerImpl;
+import io.vertx.ext.web.RoutingContext;
 
 /**
  * A Vert.x Web handler on which you register health check procedure. It computes the outcome status (`UP` or `DOWN`)
@@ -78,6 +78,8 @@ public interface HealthCheckHandler extends Handler<RoutingContext> {
    * failed, the procedure outcome is considered as `DOWN`. If the future is completed without any object, the
    * procedure outcome is considered as `UP`. If the future is completed with a (not-null) {@link Status}, the
    * procedure outcome is the received status.
+   * <p>
+   * This method uses a 1s timeout. To configure the timeout use {@link #register(String, long, Handler)}.
    *
    * @param name      the name of the procedure, must not be {@code null} or empty
    * @param procedure the procedure, must not be {@code null}
@@ -85,6 +87,23 @@ public interface HealthCheckHandler extends Handler<RoutingContext> {
    */
   @Fluent
   HealthCheckHandler register(String name, Handler<Future<Status>> procedure);
+
+  /**
+   * Registers a health check procedure.
+   * <p>
+   * The procedure is a {@link Handler} taking a {@link Future} of {@link Status} as parameter. Procedures are
+   * asynchronous, and <strong>must</strong> complete or fail the given {@link Future}. If the future object is
+   * failed, the procedure outcome is considered as `DOWN`. If the future is completed without any object, the
+   * procedure outcome is considered as `UP`. If the future is completed with a (not-null) {@link Status}, the
+   * procedure outcome is the received status.
+   *
+   * @param name      the name of the procedure, must not be {@code null} or empty
+   * @param timeout   the procedure timeout
+   * @param procedure the procedure, must not be {@code null}
+   * @return the current {@link HealthCheckHandler}
+   */
+  @Fluent
+  HealthCheckHandler register(String name, long timeout, Handler<Future<Status>> procedure);
 
   /**
    * Unregisters a procedure.

@@ -7,11 +7,9 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.junit.Test;
 
-import static com.jayway.awaitility.Awaitility.await;
 import static io.vertx.ext.healthchecks.Assertions.assertThatCheck;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
-import static org.hamcrest.Matchers.is;
 
 /**
  * @author <a href="http://escoffier.me">Clement Escoffier</a>
@@ -254,6 +252,22 @@ public class HealthCheckTest extends HealthCheckTestBase {
     handler.register("foo", future -> {
       // Bad boy !
     });
+
+    JsonObject json = get(500);
+    assertThatCheck(json).hasOutcomeDown()
+      .hasChildren(1)
+      .hasAndGetCheck("foo").isDown()
+      .hasData("procedure-execution-failure", true)
+      .hasData("cause", "Timeout").done();
+  }
+
+  @Test
+  public void testACheckThatTimeOutFast() {
+    handler.register("foo", 10, future ->
+      vertx.setTimer(100, l -> {
+        // Too late...
+        future.complete();
+      }));
 
     JsonObject json = get(500);
     assertThatCheck(json).hasOutcomeDown()

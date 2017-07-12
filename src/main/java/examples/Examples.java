@@ -2,13 +2,13 @@ package examples;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.healthchecks.HealthCheckHandler;
+import io.vertx.ext.healthchecks.HealthChecks;
+import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.web.Router;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.HttpEndpoint;
-import io.vertx.ext.healthchecks.HealthCheckHandler;
-import io.vertx.ext.healthchecks.HealthChecks;
-import io.vertx.ext.healthchecks.Status;
 
 /**
  * @author <a href="http://escoffier.me">Clement Escoffier</a>
@@ -19,6 +19,11 @@ public class Examples {
     HealthChecks hc = HealthChecks.create(vertx);
 
     hc.register("my-procedure", future -> future.complete(Status.OK()));
+
+    // Register with a timeout. The check fails if it does not complete in time.
+    // The timeout is given in ms.
+    hc.register("my-procedure", 2000, future -> future.complete(Status.OK()));
+
   }
 
   public void example2(Vertx vertx) {
@@ -40,6 +45,16 @@ public class Examples {
     // Register procedures
     // It can be done after the route registration, or even at runtime
     healthCheckHandler.register("my-procedure-name", future -> {
+      // Do the check ....
+      // Upon success do
+      future.complete(Status.OK());
+      // In case of failure do:
+      future.complete(Status.KO());
+    });
+
+    // Register another procedure with a timeout (2s). If the procedure does not complete in
+    // the given time, the check fails.
+    healthCheckHandler.register("my-procedure-name-with-timeout", 2000, future -> {
       // Do the check ....
       // Upon success do
       future.complete(Status.OK());

@@ -46,6 +46,12 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
     return this;
   }
 
+  @Override
+  public HealthCheckHandler register(String name, long timeout, Handler<Future<Status>> procedure) {
+    healthChecks.register(name, timeout, procedure);
+    return this;
+  }
+
 
   @Override
   public void handle(RoutingContext rc) {

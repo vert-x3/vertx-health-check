@@ -24,7 +24,16 @@ public class HealthChecksImpl implements HealthChecks {
 
   @Override
   public HealthChecks register(String name, Handler<Future<Status>> procedure) {
+    return register(name, 1000L, procedure);
+  }
+
+  @Override
+  public HealthChecks register(String name, long timeout, Handler<Future<Status>> procedure) {
     Objects.requireNonNull(name);
+    if (timeout <= 0) {
+      throw new IllegalArgumentException("The timeout must be strictly positive");
+    }
+
     if (name.isEmpty()) {
       throw new IllegalArgumentException("The name must not be empty");
     }
@@ -33,7 +42,7 @@ public class HealthChecksImpl implements HealthChecks {
     CompositeProcedure parent = traverseAndCreate(segments);
     String lastSegment = segments[segments.length - 1];
     parent.add(lastSegment,
-      new DefaultProcedure(vertx, lastSegment, 1000, procedure));
+      new DefaultProcedure(vertx, lastSegment, timeout, procedure));
     return this;
   }
 

@@ -33,6 +33,8 @@ public interface HealthChecks {
    * If the future object is failed, the procedure outcome is considered as `DOWN`. If the future is
    * completed without any object, the procedure outcome is considered as `UP`. If the future is completed
    * with a (not-null) {@link Status}, the procedure outcome is the received status.
+   * <p>
+   * This method uses a 1s timeout. Use {@link #register(String, long, Handler)} to configure the timeout.
    *
    * @param name      the name of the procedure, must not be {@code null} or empty
    * @param procedure the procedure, must not be {@code null}
@@ -40,6 +42,22 @@ public interface HealthChecks {
    */
   @Fluent
   HealthChecks register(String name, Handler<Future<Status>> procedure);
+
+  /**
+   * Registers a health check procedure.
+   * <p>
+   * The procedure is a {@link Handler} taking a {@link Future} of {@link Status} as parameter.
+   * Procedures are asynchronous, and <strong>must</strong> complete or fail the given {@link Future}.
+   * If the future object is failed, the procedure outcome is considered as `DOWN`. If the future is
+   * completed without any object, the procedure outcome is considered as `UP`. If the future is completed
+   * with a (not-null) {@link Status}, the procedure outcome is the received status.
+   *
+   * @param name      the name of the procedure, must not be {@code null} or empty
+   * @param timeout   the procedure timeout in milliseconds
+   * @param procedure the procedure, must not be {@code null}
+   * @return the current {@link HealthChecks}
+   */
+  HealthChecks register(String name, long timeout, Handler<Future<Status>> procedure);
 
   /**
    * Unregisters a procedure.
