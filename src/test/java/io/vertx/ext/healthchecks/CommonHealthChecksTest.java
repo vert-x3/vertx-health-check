@@ -45,6 +45,7 @@ public class CommonHealthChecksTest extends HealthCheckTestBase {
 
   private void registerJDBCProcedure(JDBCClient client) {
     handler.register("database",
+      5000L,
       future -> client.getConnection(connection -> {
         if (connection.failed()) {
           future.fail(connection.cause());
