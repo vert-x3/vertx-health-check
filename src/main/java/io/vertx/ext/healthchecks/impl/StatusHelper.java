@@ -10,23 +10,32 @@ import io.vertx.ext.healthchecks.Status;
  */
 public class StatusHelper {
 
-  public static JsonObject from(String name, AsyncResult<Status> ar) {
+  public static JsonObject from(String name, AsyncResult<?> ar) {
+    // We may get a JSON Object, if completed using:
+    // future.complete({ok: true});
+    Status res = null;
+    if (ar.result() instanceof Status) {
+      res = (Status) ar.result();
+    } else if (ar.result() instanceof JsonObject) {
+      res = new Status((JsonObject) ar.result());
+    }
+
     JsonObject json = new JsonObject();
     if (name != null) {
       json.put("id", name);
     }
     if (ar.succeeded()) {
-      if (ar.result() != null && !ar.result().isOk()) {
+      if (res != null && !res.isOk()) {
         json.put("status", "DOWN");
       } else {
         json.put("status", "UP");
       }
 
-      if (ar.result() != null && ar.result().getData() != null && !ar.result().getData().isEmpty()) {
-        json.put("data", ar.result().getData());
+      if (res != null && res.getData() != null && !res.getData().isEmpty()) {
+        json.put("data", res.getData());
       }
 
-      if (ar.result() != null && ar.result().isProcedureInError()) {
+      if (res != null && res.isProcedureInError()) {
         json.put("error", true);
       }
     } else {

@@ -121,4 +121,10 @@ public class CheckAssert extends AbstractAssert<CheckAssert, JsonObject> {
     assertThat(status).isEqualTo("DOWN");
     return this;
   }
+
+  public CheckAssert hasNoData() {
+    assertThat(actual).isNotNull();
+    assertThat(actual.getJsonObject("data")).isNull();
+    return this;
+  }
 }

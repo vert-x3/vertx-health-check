@@ -32,27 +32,27 @@ class DefaultProcedure implements Procedure {
 
   @Override
   public void check(Handler<JsonObject> resultHandler) {
-    Future<Status> future = Future.<Status>future()
-      .setHandler(ar -> {
-        if (ar.cause() instanceof ProcedureException) {
-          resultHandler.handle(StatusHelper.onError(name, (ProcedureException) ar.cause()));
-        } else {
-          resultHandler.handle(StatusHelper.from(name, ar));
-        }
-      });
-
-    if (timeout >= 0) {
-      vertx.setTimer(timeout, l -> {
-        if (!future.isComplete()) {
-          future.fail(new ProcedureException("Timeout"));
-        }
-      });
-    }
-
     try {
-      handler.handle(future);
+      Future<Status> future = Future.<Status>future()
+        .setHandler(ar -> {
+          if (ar.cause() instanceof ProcedureException) {
+            resultHandler.handle(StatusHelper.onError(name, (ProcedureException) ar.cause()));
+          } else {
+            resultHandler.handle(StatusHelper.from(name, ar));
+          }
+        });
+
+      if (timeout >= 0) {
+        vertx.setTimer(timeout, l -> future.tryFail(new ProcedureException("Timeout")));
+      }
+
+      try {
+        handler.handle(future);
+      } catch (Exception e) {
+        future.tryFail(new ProcedureException(e));
+      }
     } catch (Exception e) {
-      future.fail(new ProcedureException(e));
+      e.printStackTrace();
     }
   }
 }
