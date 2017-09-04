@@ -56,13 +56,23 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
   @Override
   public void handle(RoutingContext rc) {
     String path = rc.request().path();
+    String mount = rc.mountPoint();
     String route = rc.currentRoute().getPath();
-    if (! path.startsWith(route)) {
-      // We have a prefix  (sub-router)
-      int indexOfRoot = path.indexOf(route);
-      path = path.substring(indexOfRoot);
+
+    String id;
+
+    // We are under a sub-router.
+    // Remove the mount prefix from the path
+    if (mount != null && path.startsWith(mount)) {
+      path = path.substring(mount.length());
     }
-    String id = path.substring(route.length());
+
+    // The route has a path, remove this path from the path
+    if (route != null && path.startsWith(route)) {
+      id = path.substring(route.length());
+    } else {
+      id = path;
+    }
 
     if (authProvider != null) {
       // Copy all HTTP header in a json array and params

@@ -20,7 +20,7 @@ public class HealthCheckWithSubRouterTest extends HealthCheckTestBase {
 
   @Test
   public void testEmptyChecks() {
-    RestAssured.get("/prefix/ping")
+    RestAssured.get(prefix() + route())
       .then()
       .statusCode(204);
   }

@@ -37,6 +37,13 @@ public class HealthCheckTestBase {
     sub.get("/ping*").handler(handler);
     router.mountSubRouter("/prefix", sub);
 
+
+    // Reproducer for https://github.com/vert-x3/vertx-health-check/issues/13
+    // This sub-router does not pass a path to the route but handle all GET requests.
+    Router subRouter = Router.router(vertx);
+    subRouter.get().handler(handler);
+    router.mountSubRouter("/no-route", subRouter);
+
     AtomicBoolean done = new AtomicBoolean();
     vertx.createHttpServer()
       .requestHandler(router::accept)
@@ -58,7 +65,15 @@ public class HealthCheckTestBase {
     await().untilAtomic(done, is(true));
   }
 
-  static JsonObject get(int status) {
+  protected String prefix() {
+    return "/prefix";
+  }
+
+  protected String route() {
+    return "/ping";
+  }
+
+  JsonObject get(int status) {
     String json = RestAssured.get("/health")
       .then()
       .statusCode(status)
@@ -67,8 +82,8 @@ public class HealthCheckTestBase {
     return new JsonObject(json);
   }
 
-  static JsonObject getWithPrefix(int status) {
-    String json = RestAssured.get("/prefix/ping")
+  JsonObject getWithPrefix(int status) {
+    String json = RestAssured.get(prefix() + route())
       .then()
       .statusCode(status)
       .header("content-type", "application/json;charset=UTF-8")
@@ -76,7 +91,7 @@ public class HealthCheckTestBase {
     return new JsonObject(json);
   }
 
-  static JsonObject get(String path, int status) {
+  JsonObject get(String path, int status) {
     String json = RestAssured.get("/health/" + path)
       .then()
       .statusCode(status)
@@ -85,8 +100,8 @@ public class HealthCheckTestBase {
     return new JsonObject(json);
   }
 
-  static JsonObject getWithPrefix(String path, int status) {
-    String json = RestAssured.get("/prefix/ping/" + path)
+  JsonObject getWithPrefix(String path, int status) {
+    String json = RestAssured.get(prefix() + route() + "/" + path)
       .then()
       .statusCode(status)
       .header("content-type", "application/json;charset=UTF-8")
