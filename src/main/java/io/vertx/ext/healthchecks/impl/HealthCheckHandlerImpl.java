@@ -80,8 +80,8 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
       rc.request().headers().forEach(entry -> authData.put(entry.getKey(), entry.getValue()));
       rc.request().params().forEach(entry -> authData.put(entry.getKey(), entry.getValue()));
       if (rc.request().method() == HttpMethod.POST
-        && rc.request()
-        .getHeader(HttpHeaders.CONTENT_TYPE).contains("application/json")) {
+        && rc.request().getHeader(HttpHeaders.CONTENT_TYPE) != null
+        && rc.request().getHeader(HttpHeaders.CONTENT_TYPE).contains("application/json")) {
         authData.mergeIn(rc.getBodyAsJson());
       }
       authProvider.authenticate(authData, ar -> {

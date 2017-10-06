@@ -1,6 +1,5 @@
 package io.vertx.ext.healthchecks;
 
-import io.restassured.RestAssured;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.AuthProvider;
@@ -50,8 +49,8 @@ public class HealthCheckTestBase {
       .listen(8080, ar -> done.set(ar.succeeded()));
     await().untilAtomic(done, is(true));
 
-    RestAssured.baseURI = "http://localhost";
-    RestAssured.port = 8080;
+    Restafari.baseURI = "http://localhost";
+    Restafari.port = 8080;
   }
 
   AuthProvider getAuthProvider() {
@@ -74,7 +73,7 @@ public class HealthCheckTestBase {
   }
 
   JsonObject get(int status) {
-    String json = RestAssured.get("/health")
+    String json = Restafari.get("/health")
       .then()
       .statusCode(status)
       .header("content-type", "application/json;charset=UTF-8")
@@ -83,7 +82,7 @@ public class HealthCheckTestBase {
   }
 
   JsonObject getWithPrefix(int status) {
-    String json = RestAssured.get(prefix() + route())
+    String json = Restafari.get(prefix() + route())
       .then()
       .statusCode(status)
       .header("content-type", "application/json;charset=UTF-8")
@@ -92,7 +91,7 @@ public class HealthCheckTestBase {
   }
 
   JsonObject get(String path, int status) {
-    String json = RestAssured.get("/health/" + path)
+    String json = Restafari.get("/health/" + path)
       .then()
       .statusCode(status)
       .header("content-type", "application/json;charset=UTF-8")
@@ -101,7 +100,7 @@ public class HealthCheckTestBase {
   }
 
   JsonObject getWithPrefix(String path, int status) {
-    String json = RestAssured.get(prefix() + route() + "/" + path)
+    String json = Restafari.get(prefix() + route() + "/" + path)
       .then()
       .statusCode(status)
       .header("content-type", "application/json;charset=UTF-8")

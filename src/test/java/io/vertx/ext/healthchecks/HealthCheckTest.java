@@ -1,7 +1,6 @@
 package io.vertx.ext.healthchecks;
 
 import com.google.common.collect.ImmutableMap;
-import io.restassured.RestAssured;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -18,7 +17,7 @@ public class HealthCheckTest extends HealthCheckTestBase {
 
   @Test
   public void testEmptyChecks() {
-    RestAssured.get("/health")
+    Restafari.get("/health")
       .then()
       .statusCode(204);
   }

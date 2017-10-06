@@ -1,6 +1,5 @@
 package io.vertx.ext.healthchecks;
 
-import io.restassured.RestAssured;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -31,14 +30,14 @@ public class AuthenticationTest extends HealthCheckTestBase {
 
   @Test
   public void testAuthenticationFailed() {
-    RestAssured.get("/health")
+    Restafari.get("/health")
       .then()
       .statusCode(403);
   }
 
   @Test
   public void testAuthenticationSuccessUsingHeader() {
-    RestAssured
+    Restafari
       .given()
       .header("X-Username", "admin")
       .header("X-Password", "admin")
@@ -49,7 +48,7 @@ public class AuthenticationTest extends HealthCheckTestBase {
 
   @Test
   public void testAuthenticationFailedUsingHeader() {
-    RestAssured
+    Restafari
       .given()
       .header("X-Username", "admin")
       .header("X-Password", "wrong password")
@@ -60,7 +59,7 @@ public class AuthenticationTest extends HealthCheckTestBase {
 
   @Test
   public void testAuthenticationSuccessfulUsingParam() {
-    RestAssured
+    Restafari
       .given()
       .param("X-Username", "admin")
       .param("X-Password", "admin")
@@ -71,7 +70,7 @@ public class AuthenticationTest extends HealthCheckTestBase {
 
   @Test
   public void testAuthenticationFailedUsingParam() {
-    RestAssured
+    Restafari
       .given()
       .param("X-Password", "admin")
       .get("/health")
@@ -81,7 +80,7 @@ public class AuthenticationTest extends HealthCheckTestBase {
 
   @Test
   public void testAuthenticationSuccessfulUsingForm() {
-    RestAssured
+    Restafari
       .given()
       .formParam("X-Username", "admin")
       .formParam("X-Password", "admin")
@@ -92,7 +91,7 @@ public class AuthenticationTest extends HealthCheckTestBase {
 
   @Test
   public void testAuthenticationFailedUsingForm() {
-    RestAssured
+    Restafari
       .given()
       .formParam("X-Username", "admin")
       .formParam("X-Password", "not my password")
@@ -103,7 +102,7 @@ public class AuthenticationTest extends HealthCheckTestBase {
 
   @Test
   public void testAuthenticationSuccessfulUsingBody() {
-    RestAssured
+    Restafari
       .given()
       .body("{\"X-Username\":\"admin\", \"X-Password\":\"admin\"}")
       .header(CONTENT_TYPE, "application/json")
@@ -114,7 +113,7 @@ public class AuthenticationTest extends HealthCheckTestBase {
 
   @Test
   public void testAuthenticationFailedUsingBody() {
-    RestAssured
+    Restafari
       .given()
       .body("{\"X-Username\":\"admin\", \"X-Password\":\"not my password\"}")
       .header(CONTENT_TYPE, "application/json")
@@ -125,7 +124,7 @@ public class AuthenticationTest extends HealthCheckTestBase {
 
   @Test
   public void testAuthenticationFailedUsingBodyBecauseOfMissingContentType() {
-    RestAssured
+    Restafari
       .given()
       .body("{\"X-Username\":\"admin\", \"X-Password\":\"admin\"}")
       .post("/post-health")
