@@ -1,8 +1,6 @@
 = Vert.x Health Checks
 
-This component provides a simple way to expose health checks.
-
-Health checks are used to express the current state
+This component provides a simple way to expose health checks. Health checks are used to express the current state
 of the application in very simple terms: _UP_ or _DOWN_. The health checks can be used individually, or in
 combination to Vert.x Web or the event bus.
 
@@ -19,9 +17,9 @@ Notice that you generally need Vert.x Web to use this component. In addition add
 [source,xml,subs="+attributes"]
 ----
 <dependency>
-  <groupId>io.vertx</groupId>
-  <artifactId>vertx-health-check</artifactId>
-  <version>3.5.1</version>
+  <groupId>${maven.groupId}</groupId>
+  <artifactId>${maven.artifactId}</artifactId>
+  <version>${maven.version}</version>
 </dependency>
 ----
 
@@ -29,16 +27,16 @@ Notice that you generally need Vert.x Web to use this component. In addition add
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-health-check:3.5.1'
+compile '${maven.groupId}:${maven.artifactId}:${maven.version}'
 ----
 
 === Creating the health check object.
 
-The central object is `link:../../jsdoc/module-vertx-health-checks-js_health_checks-HealthChecks.html[HealthChecks]`. You can create a new instance using:
+The central object is {@link io.vertx.ext.healthchecks.HealthChecks}. You can create a new instance using:
 
-[source, js]
+[source, $lang]
 ----
-Code not translatable
+{@link examples.Examples#example1(io.vertx.core.Vertx)}
 ----
 
 Once you have created this object you can register and unregister procedures. See more about this below.
@@ -47,88 +45,62 @@ Once you have created this object you can register and unregister procedures. Se
 
 To create the Vert.x Web handler managing your health check you can either:
 
-* using an existing instance of `link:../../jsdoc/module-vertx-health-checks-js_health_checks-HealthChecks.html[HealthChecks]`
+* using an existing instance of {@link io.vertx.ext.healthchecks.HealthChecks}
 * let the handler create one instance for you.
 
-[source, js]
+[source, $lang]
 ----
-var HealthCheckHandler = require("vertx-health-checks-js/health_check_handler");
-var HealthChecks = require("vertx-health-checks-js/health_checks");
-var Router = require("vertx-web-js/router");
-var healthCheckHandler1 = HealthCheckHandler.create(vertx);
-var healthCheckHandler2 = HealthCheckHandler.createWithHealthChecks(HealthChecks.create(vertx));
-
-var router = Router.router(vertx);
-// Populate the router with routes...
-// Register the health check handler
-router.get("/health*").handler(healthCheckHandler1.handle);
-// Or
-router.get("/ping*").handler(healthCheckHandler2.handle);
-
+{@link examples.Examples#example2(io.vertx.core.Vertx)}
 ----
 
-Procedure registration can be directly made on the `link:../../jsdoc/module-vertx-health-checks-js_health_check_handler-HealthCheckHandler.html[HealthCheckHandler]`
-instance. Alternatively, if you have created the `link:../../jsdoc/module-vertx-health-checks-js_health_checks-HealthChecks.html[HealthChecks]` instance
+Procedure registration can be directly made on the {@link io.vertx.ext.healthchecks.HealthCheckHandler}
+instance. Alternatively, if you have created the {@link io.vertx.ext.healthchecks.HealthChecks} instance
 beforehand, you can register the procedure on this object directly. Registrations and unregistrations can be done at
 anytime, even after the route registration:
 
-[source, js]
+[source, $lang]
 ----
-Code not translatable
+{@link examples.Examples#example2(io.vertx.core.Vertx, io.vertx.ext.web.Router)}
 ----
 
 == Procedures
 
 A procedure is a function checking some aspect of the system to deduce the current health. It reports a
-`link:../dataobjects.html#Status[Status]` indicating whether or not the test has passed or failed. This function
-must not block and report to the given `link:../../jsdoc/module-vertx-js_future-Future.html[Future]` whether or not it succeed.
+{@link io.vertx.ext.healthchecks.Status} indicating whether or not the test has passed or failed. This function
+must not block and report to the given {@link io.vertx.core.Future} whether or not it succeed.
 
 When you register a procedure, you give a name, and the function (handler) executing the check.
 
 Rules deducing the status are the following
 
 * if the future is mark as failed, the check is considered as _KO_
-* if the future is completed successfully but without a `link:../dataobjects.html#Status[Status]`, the check
+* if the future is completed successfully but without a {@link io.vertx.ext.healthchecks.Status}, the check
 is considered as _OK_.
-* if the future is completed successfully with a `link:../dataobjects.html#Status[Status]` marked as _OK_,
+* if the future is completed successfully with a {@link io.vertx.ext.healthchecks.Status} marked as _OK_,
 the check is considered as _OK_.
-* if the future is completed successfully with a `link:../dataobjects.html#Status[Status]` marked as _KO_,
+* if the future is completed successfully with a {@link io.vertx.ext.healthchecks.Status} marked as _KO_,
 the check is considered as _KO_.
 
-`link:../dataobjects.html#Status[Status]` can also provide additional data:
+{@link io.vertx.ext.healthchecks.Status} can also provide additional data:
 
-[source, js]
+[source, $lang]
 ----
-Code not translatable
+{@link examples.Examples#example4(io.vertx.core.Vertx, io.vertx.ext.web.Router)}
 ----
 
 Procedures can be organised by groups. The procedure name indicates the group. The procedures are organized as a
 tree and the structure is mapped to HTTP urls (see below).
 
-[source, js]
+[source, $lang]
 ----
-var HealthCheckHandler = require("vertx-health-checks-js/health_check_handler");
-var healthCheckHandler = HealthCheckHandler.create(vertx);
-
-// Register procedures
-// Procedure can be grouped. The group is deduced using a name with "/".
-// Groups can contains other group
-healthCheckHandler.register("a-group/my-procedure-name", function (future) {
-  //....
-});
-healthCheckHandler.register("a-group/a-second-group/my-second-procedure-name", function (future) {
-  //....
-});
-
-router.get("/health").handler(healthCheckHandler.handle);
-
+{@link examples.Examples#example3(io.vertx.core.Vertx, io.vertx.ext.web.Router)}
 ----
 
 == HTTP responses and JSON Output
 
 When using the Vert.x web handler, the overall health check is retrieved using a HTTP GET or POST (depending on
 the route you registered) on the route given when exposing the
-`link:../../jsdoc/module-vertx-health-checks-js_health_check_handler-HealthCheckHandler.html[HealthCheckHandler]`.
+{@link io.vertx.ext.healthchecks.HealthCheckHandler}.
 
 If no procedure are registered, the response is `204 - NO CONTENT`, indicating that the system is _UP_ but no
 procedures has been executed. The response does not contain a payload.
@@ -198,18 +170,18 @@ This section provides example of common health checks.
 
 This check reports whether or not a connection to the database can be established:
 
-[source, js]
+[source, $lang]
 ----
-Code not translatable
+{@link examples.Examples#jdbc(io.vertx.ext.jdbc.JDBCClient, HealthCheckHandler)}
 ----
 
 === Service availability
 
 This check reports whether or not a service (here a HTTP endpoint) is available in the service discovery:
 
-[source, js]
+[source, $lang]
 ----
-Code not translatable
+{@link examples.Examples#service}
 ----
 
 === Event bus
@@ -218,14 +190,14 @@ This check reports whether a consumer is ready on the event bus. The protocol, i
 ping/pong, but it can be more sophisticated. This check can be used to check whether or not a verticle is ready
 if it's listening on a specific event address.
 
-[source, js]
+[source, $lang]
 ----
-Code not translatable
+{@link examples.Examples#eventbus(io.vertx.core.Vertx, HealthCheckHandler)}
 ----
 
 == Authentication
 
-When using the Vert.x web handler, you can pass a `link:../../jsdoc/module-vertx-auth-common-js_auth_provider-AuthProvider.html[AuthProvider]` use to authenticate the
+When using the Vert.x web handler, you can pass a {@link io.vertx.ext.auth.AuthProvider} use to authenticate the
 request. Check <a href="http://vertx.io/docs/#authentication_and_authorisation">Vert.x Auth</a> for more details
 about available authentication providers.
 
@@ -244,10 +216,7 @@ returns a `403 - FORBIDDEN` response.
 While exposing the health checks using HTTP with the Vert.x web handler is convenient, it can be useful
 to expose the data differently. This section gives an example to expose the data on the event bus:
 
-[source, js]
+[source, $lang]
 ----
-vertx.eventBus().consumer("health", function (message) {
-  healthChecks.invoke(message.reply);
-});
-
+{@link examples.Examples#publishOnEventBus(io.vertx.core.Vertx, HealthChecks)}
 ----
