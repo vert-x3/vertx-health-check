@@ -36,7 +36,7 @@ The central object is {@link io.vertx.ext.healthchecks.HealthChecks}. You can cr
 
 [source, $lang]
 ----
-{@link examples.Examples#example1(io.vertx.core.Vertx)}
+{@link examples.HealthCheckExamples#example1(io.vertx.core.Vertx)}
 ----
 
 Once you have created this object you can register and unregister procedures. See more about this below.
@@ -50,7 +50,7 @@ To create the Vert.x Web handler managing your health check you can either:
 
 [source, $lang]
 ----
-{@link examples.Examples#example2(io.vertx.core.Vertx)}
+{@link examples.HealthCheckExamples#example2(io.vertx.core.Vertx)}
 ----
 
 Procedure registration can be directly made on the {@link io.vertx.ext.healthchecks.HealthCheckHandler}
@@ -60,7 +60,7 @@ anytime, even after the route registration:
 
 [source, $lang]
 ----
-{@link examples.Examples#example2(io.vertx.core.Vertx, io.vertx.ext.web.Router)}
+{@link examples.HealthCheckExamples#example2(io.vertx.core.Vertx, io.vertx.ext.web.Router)}
 ----
 
 == Procedures
@@ -85,7 +85,7 @@ the check is considered as _KO_.
 
 [source, $lang]
 ----
-{@link examples.Examples#example4(io.vertx.core.Vertx, io.vertx.ext.web.Router)}
+{@link examples.HealthCheckExamples#example4(io.vertx.core.Vertx, io.vertx.ext.web.Router)}
 ----
 
 Procedures can be organised by groups. The procedure name indicates the group. The procedures are organized as a
@@ -93,7 +93,7 @@ tree and the structure is mapped to HTTP urls (see below).
 
 [source, $lang]
 ----
-{@link examples.Examples#example3(io.vertx.core.Vertx, io.vertx.ext.web.Router)}
+{@link examples.HealthCheckExamples#example3(io.vertx.core.Vertx, io.vertx.ext.web.Router)}
 ----
 
 == HTTP responses and JSON Output
@@ -172,7 +172,7 @@ This check reports whether or not a connection to the database can be establishe
 
 [source, $lang]
 ----
-{@link examples.Examples#jdbc(io.vertx.ext.jdbc.JDBCClient, HealthCheckHandler)}
+{@link examples.HealthCheckExamples#jdbc(io.vertx.ext.jdbc.JDBCClient, HealthCheckHandler)}
 ----
 
 === Service availability
@@ -181,7 +181,7 @@ This check reports whether or not a service (here a HTTP endpoint) is available 
 
 [source, $lang]
 ----
-{@link examples.Examples#service}
+{@link examples.HealthCheckExamples#service}
 ----
 
 === Event bus
@@ -192,7 +192,7 @@ if it's listening on a specific event address.
 
 [source, $lang]
 ----
-{@link examples.Examples#eventbus(io.vertx.core.Vertx, HealthCheckHandler)}
+{@link examples.HealthCheckExamples#eventbus(io.vertx.core.Vertx, HealthCheckHandler)}
 ----
 
 == Authentication
@@ -218,5 +218,5 @@ to expose the data differently. This section gives an example to expose the data
 
 [source, $lang]
 ----
-{@link examples.Examples#publishOnEventBus(io.vertx.core.Vertx, HealthChecks)}
+{@link examples.HealthCheckExamples#publishOnEventBus(io.vertx.core.Vertx, HealthChecks)}
 ----

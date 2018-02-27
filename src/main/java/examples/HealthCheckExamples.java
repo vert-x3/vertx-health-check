@@ -13,7 +13,7 @@ import io.vertx.servicediscovery.types.HttpEndpoint;
 /**
  * @author <a href="http://escoffier.me">Clement Escoffier</a>
  */
-public class Examples {
+public class HealthCheckExamples {
 
   public void example1(Vertx vertx) {
     HealthChecks hc = HealthChecks.create(vertx);
