@@ -9,8 +9,8 @@ The handler computes the final state and returns the result as JSON.
 
 Documentation:
 
-* link:src/main/asciidoc/java/index.adoc[in-source docs - java]
-* link:src/main/asciidoc/groovy/index.adoc[in-source docs - groovy]
-* link:src/main/asciidoc/js/index.adoc[in-source docs - javascript]
-* link:src/main/asciidoc/ruby/index.adoc[in-source docs - ruby]
-* link:src/main/asciidoc/kotlin/index.adoc[in-source docs - kotlin]
+* http://vertx.io/docs/vertx-health-check/java/[Java documentation]
+* http://vertx.io/docs/vertx-health-check/js/[JavaScript documentation]
+* http://vertx.io/docs/vertx-health-check/kotlin/[Kotlin documentation]
+* http://vertx.io/docs/vertx-health-check/groovy/[Groovy documentation]
+* http://vertx.io/docs/vertx-health-check/ruby/[Ruby documentation]

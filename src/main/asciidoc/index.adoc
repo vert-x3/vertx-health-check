@@ -17,8 +17,8 @@ Notice that you generally need Vert.x Web to use this component. In addition add
 [source,xml,subs="+attributes"]
 ----
 <dependency>
-  <groupId>${maven.groupId}</groupId>
-  <artifactId>${maven.artifactId}</artifactId>
+  <groupId>io.vertx</groupId>
+  <artifactId>vertx-health-check</artifactId>
   <version>${maven.version}</version>
 </dependency>
 ----
@@ -27,7 +27,7 @@ Notice that you generally need Vert.x Web to use this component. In addition add
 
 [source,groovy,subs="+attributes"]
 ----
-compile '${maven.groupId}:${maven.artifactId}:${maven.version}'
+compile 'io.vertx:vertx-health-check:${maven.version}'
 ----
 
 === Creating the health check object.
