@@ -87,11 +87,13 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
       authProvider.authenticate(authData, ar -> {
         if (ar.failed()) {
           rc.response().setStatusCode(403).end();
+        } else if (rc.response().closed() || rc.response().ended()) {
+          rc.fail(500);
         } else {
           healthChecks.invoke(id, healthReportHandler(rc));
         }
       });
-    } else {
+    } else if (!rc.response().closed() && !rc.response().ended()) {
       healthChecks.invoke(id, healthReportHandler(rc));
     }
   }
@@ -99,7 +101,7 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
   private Handler<AsyncResult<JsonObject>> healthReportHandler(RoutingContext rc) {
     return json -> {
       HttpServerResponse response = rc.response()
-        .putHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=UTF-8");
+                                      .putHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=UTF-8");
       if (json.failed()) {
         if (json.cause().getMessage().toLowerCase().contains("not found")) {
           response.setStatusCode(404);
