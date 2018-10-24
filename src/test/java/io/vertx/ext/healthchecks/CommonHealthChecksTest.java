@@ -5,16 +5,11 @@ import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.unit.junit.Repeat;
 import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.vertx.servicediscovery.ServiceDiscovery;
-import io.vertx.servicediscovery.types.HttpEndpoint;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import static com.jayway.awaitility.Awaitility.await;
-import static org.hamcrest.Matchers.is;
 
 /**
  * @author <a href="http://escoffier.me">Clement Escoffier</a>
@@ -71,6 +66,7 @@ public class CommonHealthChecksTest extends HealthCheckTestBase {
   }
 
 
+  /*
   @Test
   public void testServiceAvailability_OK() {
     ServiceDiscovery discovery = ServiceDiscovery.create(vertx);
@@ -104,6 +100,7 @@ public class CommonHealthChecksTest extends HealthCheckTestBase {
     registerServiceProcedure(discovery);
     get(503);
   }
+  */
 
   @Test
   public void testOnEventBus_OK() {

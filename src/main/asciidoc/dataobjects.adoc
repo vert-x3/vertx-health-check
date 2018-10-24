@@ -9,20 +9,17 @@
 ++++
 '''
 
-[cols=">25%,^25%,50%"]
+[cols=">25%,25%,50%"]
 [frame="topbot"]
 |===
 ^|Name | Type ^| Description
-|[[data]]`data`|`Json object`|
-+++
+|[[data]]`@data`|`Json object`|+++
 Sets the metadata.
 +++
-|[[ok]]`ok`|`Boolean`|
-+++
+|[[ok]]`@ok`|`Boolean`|+++
 Sets whether or not the current status is positive (UP) or negative (DOWN).
 +++
-|[[procedureInError]]`procedureInError`|`Boolean`|
-+++
+|[[procedureInError]]`@procedureInError`|`Boolean`|+++
 Sets whether or not the procedure attached to this status has failed (timeout, error...).
 +++
 |===

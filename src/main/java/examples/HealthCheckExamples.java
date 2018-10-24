@@ -7,8 +7,6 @@ import io.vertx.ext.healthchecks.HealthChecks;
 import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.web.Router;
-import io.vertx.servicediscovery.ServiceDiscovery;
-import io.vertx.servicediscovery.types.HttpEndpoint;
 
 /**
  * @author <a href="http://escoffier.me">Clement Escoffier</a>
@@ -109,7 +107,9 @@ public class HealthCheckExamples {
       }));
   }
 
-  public void service(ServiceDiscovery discovery, HealthCheckHandler handler) {
+
+  public void service(/*ServiceDiscovery discovery, HealthCheckHandler handler*/) {
+    /*
     handler.register("my-service",
       future -> HttpEndpoint.getClient(discovery,
         (rec) -> "my-service".equals(rec.getName()),
@@ -121,6 +121,7 @@ public class HealthCheckExamples {
             future.complete(Status.OK());
           }
         }));
+        */
   }
 
   public void eventbus(Vertx vertx, HealthCheckHandler handler) {
