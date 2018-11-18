@@ -87,11 +87,11 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
       authProvider.authenticate(authData, ar -> {
         if (ar.failed()) {
           rc.response().setStatusCode(403).end();
-        } else {
+        } else if (!rc.response().closed() && !rc.response().ended()) {
           healthChecks.invoke(id, healthReportHandler(rc));
-        }
+        } 
       });
-    } else {
+    } else if (!rc.response().closed() && !rc.response().ended()) {
       healthChecks.invoke(id, healthReportHandler(rc));
     }
   }
