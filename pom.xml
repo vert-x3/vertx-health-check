@@ -179,6 +179,9 @@
           		  io.vertx.lang.rxjava;resolution:=optional, \
           		  io.vertx.rx.java;resolution:=optional, \
           		  io.vertx.rxjava.core;resolution:=optional, \
+          		  io.vertx.codegen.annotations;resolution:=optional, \
+          		  !io.vertx.ext.jdbc, \
+          		  !io.vertx.ext.sql, \
                   *
                 -exportcontents: !*impl, !examples, *
           ]]></bnd>
