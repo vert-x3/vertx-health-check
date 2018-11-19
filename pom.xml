@@ -105,13 +105,11 @@
       <artifactId>vertx-jdbc-client</artifactId>
       <optional>true</optional>
     </dependency>
-    <!--
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-service-discovery</artifactId>
       <optional>true</optional>
     </dependency>
-    -->
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>okhttp</artifactId>
