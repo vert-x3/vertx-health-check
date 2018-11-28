@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>vertx-health-check</artifactId>
-  <version>3.6.0-SNAPSHOT</version>
+  <version>3.6.0</version>
 
   <properties>
     <doc.skip>false</doc.skip>
