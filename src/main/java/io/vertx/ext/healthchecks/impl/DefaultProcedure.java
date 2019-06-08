@@ -1,7 +1,7 @@
 package io.vertx.ext.healthchecks.impl;
 
-import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.healthchecks.Status;
@@ -13,14 +13,14 @@ import java.util.Objects;
  */
 class DefaultProcedure implements Procedure {
 
-  private final Handler<Future<Status>> handler;
+  private final Handler<Promise<Status>> handler;
   private final String name;
 
   private final Vertx vertx;
   private final long timeout;
 
   DefaultProcedure(Vertx vertx, String name, long timeout,
-                   Handler<Future<Status>> handler) {
+                   Handler<Promise<Status>> handler) {
     Objects.requireNonNull(vertx);
     Objects.requireNonNull(name);
     Objects.requireNonNull(handler);
@@ -33,8 +33,8 @@ class DefaultProcedure implements Procedure {
   @Override
   public void check(Handler<JsonObject> resultHandler) {
     try {
-      Future<Status> future = Future.<Status>future()
-        .setHandler(ar -> {
+      Promise<Status> promise = Promise.promise();
+      promise.future().setHandler(ar -> {
           if (ar.cause() instanceof ProcedureException) {
             resultHandler.handle(StatusHelper.onError(name, (ProcedureException) ar.cause()));
           } else {
@@ -43,13 +43,13 @@ class DefaultProcedure implements Procedure {
         });
 
       if (timeout >= 0) {
-        vertx.setTimer(timeout, l -> future.tryFail(new ProcedureException("Timeout")));
+        vertx.setTimer(timeout, l -> promise.tryFail(new ProcedureException("Timeout")));
       }
 
       try {
-        handler.handle(future);
+        handler.handle(promise);
       } catch (Exception e) {
-        future.tryFail(new ProcedureException(e));
+        promise.tryFail(new ProcedureException(e));
       }
     } catch (Exception e) {
       e.printStackTrace();

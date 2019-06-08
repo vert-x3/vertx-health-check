@@ -1,7 +1,7 @@
 package io.vertx.ext.healthchecks;
 
 import com.google.common.collect.ImmutableMap;
-import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.junit.Test;
@@ -24,7 +24,7 @@ public class HealthCheckTest extends HealthCheckTestBase {
 
   @Test
   public void testWithEmptySuccessfulCheck() {
-    handler.register("foo", Future::complete);
+    handler.register("foo", Promise::complete);
 
     JsonObject json = get(200);
     assertThatCheck(json).hasOutcomeUp()

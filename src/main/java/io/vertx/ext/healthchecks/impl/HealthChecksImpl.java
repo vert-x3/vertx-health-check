@@ -3,6 +3,7 @@ package io.vertx.ext.healthchecks.impl;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.healthchecks.HealthChecks;
@@ -23,12 +24,12 @@ public class HealthChecksImpl implements HealthChecks {
   }
 
   @Override
-  public HealthChecks register(String name, Handler<Future<Status>> procedure) {
+  public HealthChecks register(String name, Handler<Promise<Status>> procedure) {
     return register(name, 1000L, procedure);
   }
 
   @Override
-  public HealthChecks register(String name, long timeout, Handler<Future<Status>> procedure) {
+  public HealthChecks register(String name, long timeout, Handler<Promise<Status>> procedure) {
     Objects.requireNonNull(name);
     if (timeout <= 0) {
       throw new IllegalArgumentException("The timeout must be strictly positive");
