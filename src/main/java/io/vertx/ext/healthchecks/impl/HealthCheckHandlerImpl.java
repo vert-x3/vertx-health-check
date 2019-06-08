@@ -1,8 +1,8 @@
 package io.vertx.ext.healthchecks.impl;
 
 import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
@@ -41,13 +41,13 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
   }
 
   @Override
-  public HealthCheckHandler register(String name, Handler<Future<Status>> procedure) {
+  public HealthCheckHandler register(String name, Handler<Promise<Status>> procedure) {
     healthChecks.register(name, procedure);
     return this;
   }
 
   @Override
-  public HealthCheckHandler register(String name, long timeout, Handler<Future<Status>> procedure) {
+  public HealthCheckHandler register(String name, long timeout, Handler<Promise<Status>> procedure) {
     healthChecks.register(name, timeout, procedure);
     return this;
   }

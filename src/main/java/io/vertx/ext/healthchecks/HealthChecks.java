@@ -3,8 +3,8 @@ package io.vertx.ext.healthchecks;
 import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.healthchecks.impl.HealthChecksImpl;
@@ -28,8 +28,8 @@ public interface HealthChecks {
   /**
    * Registers a health check procedure.
    * <p>
-   * The procedure is a {@link Handler} taking a {@link Future} of {@link Status} as parameter.
-   * Procedures are asynchronous, and <strong>must</strong> complete or fail the given {@link Future}.
+   * The procedure is a {@link Handler} taking a {@link Promise} of {@link Status} as parameter.
+   * Procedures are asynchronous, and <strong>must</strong> complete or fail the given {@link Promise}.
    * If the future object is failed, the procedure outcome is considered as `DOWN`. If the future is
    * completed without any object, the procedure outcome is considered as `UP`. If the future is completed
    * with a (not-null) {@link Status}, the procedure outcome is the received status.
@@ -41,13 +41,13 @@ public interface HealthChecks {
    * @return the current {@link HealthChecks}
    */
   @Fluent
-  HealthChecks register(String name, Handler<Future<Status>> procedure);
+  HealthChecks register(String name, Handler<Promise<Status>> procedure);
 
   /**
    * Registers a health check procedure.
    * <p>
-   * The procedure is a {@link Handler} taking a {@link Future} of {@link Status} as parameter.
-   * Procedures are asynchronous, and <strong>must</strong> complete or fail the given {@link Future}.
+   * The procedure is a {@link Handler} taking a {@link Promise} of {@link Status} as parameter.
+   * Procedures are asynchronous, and <strong>must</strong> complete or fail the given {@link Promise}.
    * If the future object is failed, the procedure outcome is considered as `DOWN`. If the future is
    * completed without any object, the procedure outcome is considered as `UP`. If the future is completed
    * with a (not-null) {@link Status}, the procedure outcome is the received status.
@@ -57,7 +57,7 @@ public interface HealthChecks {
    * @param procedure the procedure, must not be {@code null}
    * @return the current {@link HealthChecks}
    */
-  HealthChecks register(String name, long timeout, Handler<Future<Status>> procedure);
+  HealthChecks register(String name, long timeout, Handler<Promise<Status>> procedure);
 
   /**
    * Unregisters a procedure.
