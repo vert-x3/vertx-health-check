@@ -3,6 +3,7 @@ package io.vertx.ext.healthchecks.impl;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -51,20 +52,20 @@ class DefaultCompositeProcedure implements CompositeProcedure {
     JsonArray checks = new JsonArray();
     result.put("checks", checks);
 
-    Map<String, Future<JsonObject>> tasks = new HashMap<>();
+    Map<String, Promise<JsonObject>> tasks = new HashMap<>();
     List<Future> completed = new ArrayList<>();
     for (Map.Entry<String, Procedure> entry : copy.entrySet()) {
-      Future<JsonObject> future = Future.future();
-      completed.add(future);
-      tasks.put(entry.getKey(), future);
-      entry.getValue().check(future::complete);
+      Promise<JsonObject> promise = Promise.promise();
+      completed.add(promise.future());
+      tasks.put(entry.getKey(), promise);
+      entry.getValue().check(promise::complete);
     }
 
     CompositeFuture.join(completed)
       .setHandler(ar -> {
         boolean success = true;
-        for (Map.Entry<String, Future<JsonObject>> entry : tasks.entrySet()) {
-          Future<JsonObject> json = entry.getValue();
+        for (Map.Entry<String, Promise<JsonObject>> entry : tasks.entrySet()) {
+          Future<JsonObject> json = entry.getValue().future();
           boolean up = isUp(json);
           success = success && up;
 
