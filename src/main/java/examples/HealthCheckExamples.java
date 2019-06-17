@@ -126,7 +126,7 @@ public class HealthCheckExamples {
   public void eventbus(Vertx vertx, HealthCheckHandler handler) {
     handler.register("receiver",
       future ->
-        vertx.eventBus().send("health", "ping", response -> {
+        vertx.eventBus().request("health", "ping", response -> {
           if (response.succeeded()) {
             future.complete(Status.OK());
           } else {
