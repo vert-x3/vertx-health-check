@@ -4,12 +4,21 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import io.vertx.core.spi.json.JsonCodec;
 
 /**
- * Converter for {@link io.vertx.ext.healthchecks.Status}.
+ * Converter and Codec for {@link io.vertx.ext.healthchecks.Status}.
  * NOTE: This class has been automatically generated from the {@link io.vertx.ext.healthchecks.Status} original class using Vert.x codegen.
  */
-public class StatusConverter {
+public class StatusConverter implements JsonCodec<Status, JsonObject> {
+
+  public static final StatusConverter INSTANCE = new StatusConverter();
+
+  @Override public JsonObject encode(Status value) { return (value != null) ? value.toJson() : null; }
+
+  @Override public Status decode(JsonObject value) { return (value != null) ? new Status(value) : null; }
+
+  @Override public Class<Status> getTargetClass() { return Status.class; }
 
   public static void fromJson(Iterable<java.util.Map.Entry<String, Object>> json, Status obj) {
     for (java.util.Map.Entry<String, Object> member : json) {
