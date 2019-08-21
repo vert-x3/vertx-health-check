@@ -141,11 +141,6 @@ public class AuthenticationTest extends HealthCheckTestBase {
     }
 
     @Override
-    public User isAuthorised(String s, Handler<AsyncResult<Boolean>> handler) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public User isAuthorized(String s, Handler<AsyncResult<Boolean>> handler) {
       throw new UnsupportedOperationException();
     }
