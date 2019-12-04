@@ -29,8 +29,8 @@ public class HealthCheckTestBase {
     router.get("/health*").handler(handler);
 
     // Only for authentication tests
-    router.post("/post-health/*").handler(BodyHandler.create());
-    router.post("/post-health*").handler(handler);
+    router.post("/post-health").handler(BodyHandler.create());
+    router.post("/post-health").handler(handler);
 
     Router sub = Router.router(vertx);
     sub.get("/ping*").handler(handler);

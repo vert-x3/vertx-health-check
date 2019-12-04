@@ -1,5 +1,6 @@
 package io.vertx.ext.healthchecks.impl;
 
+import io.vertx.codegen.annotations.Nullable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
@@ -82,7 +83,10 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
       if (rc.request().method() == HttpMethod.POST
         && rc.request().getHeader(HttpHeaders.CONTENT_TYPE) != null
         && rc.request().getHeader(HttpHeaders.CONTENT_TYPE).contains("application/json")) {
-        authData.mergeIn(rc.getBodyAsJson());
+        JsonObject body = rc.getBodyAsJson();
+        if (body != null) {
+          authData.mergeIn(body);
+        }
       }
       authProvider.authenticate(authData, ar -> {
         if (ar.failed()) {

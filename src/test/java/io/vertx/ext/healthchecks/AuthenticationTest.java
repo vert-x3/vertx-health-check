@@ -141,6 +141,11 @@ public class AuthenticationTest extends HealthCheckTestBase {
     }
 
     @Override
+    public JsonObject attributes() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public User isAuthorized(String s, Handler<AsyncResult<Boolean>> handler) {
       throw new UnsupportedOperationException();
     }
