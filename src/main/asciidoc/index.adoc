@@ -197,7 +197,7 @@ if it's listening on a specific event address.
 
 == Authentication
 
-When using the Vert.x web handler, you can pass a {@link io.vertx.ext.auth.AuthProvider} use to authenticate the
+When using the Vert.x web handler, you can pass a {@link io.vertx.ext.auth.authentication.AuthenticationProvider} use to authenticate the
 request. Check <a href="http://vertx.io/docs/#authentication_and_authorisation">Vert.x Auth</a> for more details
 about available authentication providers.
 

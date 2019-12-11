@@ -2,7 +2,7 @@ package io.vertx.ext.healthchecks;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.auth.AuthProvider;
+import io.vertx.ext.auth.authentication.AuthenticationProvider;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import org.junit.After;
@@ -53,7 +53,7 @@ public class HealthCheckTestBase {
     Restafari.port = 8080;
   }
 
-  AuthProvider getAuthProvider() {
+  AuthenticationProvider getAuthProvider() {
     return null;
   }
 

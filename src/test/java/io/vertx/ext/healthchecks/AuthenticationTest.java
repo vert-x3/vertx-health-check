@@ -1,11 +1,9 @@
 package io.vertx.ext.healthchecks;
 
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
-import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.auth.AuthProvider;
 import io.vertx.ext.auth.User;
+import io.vertx.ext.auth.authentication.AuthenticationProvider;
 import org.junit.Test;
 
 import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
@@ -16,12 +14,12 @@ import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 public class AuthenticationTest extends HealthCheckTestBase {
 
   @Override
-  AuthProvider getAuthProvider() {
+  AuthenticationProvider getAuthProvider() {
     return (jsonObject, handler) ->
       vertx.runOnContext(v -> {
         if ("admin".equals(jsonObject.getString("X-Username"))
           && "admin".equals(jsonObject.getString("X-Password"))) {
-          handler.handle(Future.succeededFuture(new FakeUser("admin")));
+          handler.handle(Future.succeededFuture(User.create(new JsonObject().put("login", "admin"))));
         } else {
           handler.handle(Future.failedFuture("Not Authorized"));
         }
@@ -130,39 +128,5 @@ public class AuthenticationTest extends HealthCheckTestBase {
       .post("/post-health")
       .then()
       .statusCode(403);
-  }
-
-
-  private class FakeUser implements User {
-    private final String name;
-
-    FakeUser(String name) {
-      this.name = name;
-    }
-
-    @Override
-    public JsonObject attributes() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public User isAuthorized(String s, Handler<AsyncResult<Boolean>> handler) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public User clearCache() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public JsonObject principal() {
-      return new JsonObject().put("login", name);
-    }
-
-    @Override
-    public void setAuthProvider(AuthProvider authProvider) {
-      throw new UnsupportedOperationException();
-    }
   }
 }
