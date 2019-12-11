@@ -5,7 +5,7 @@ import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
-import io.vertx.ext.auth.AuthProvider;
+import io.vertx.ext.auth.authentication.AuthenticationProvider;
 import io.vertx.ext.healthchecks.impl.HealthCheckHandlerImpl;
 import io.vertx.ext.web.RoutingContext;
 
@@ -34,7 +34,7 @@ public interface HealthCheckHandler extends Handler<RoutingContext> {
    * @param provider the Authentication provider used to authenticate the HTTP request
    * @return the created instance
    */
-  static HealthCheckHandler create(Vertx vertx, AuthProvider provider) {
+  static HealthCheckHandler create(Vertx vertx, AuthenticationProvider provider) {
     return new HealthCheckHandlerImpl(vertx, provider);
   }
 
@@ -56,7 +56,7 @@ public interface HealthCheckHandler extends Handler<RoutingContext> {
    * @param hc the health checks object to use, must not be {@code null}
    * @return the created instance
    */
-  static HealthCheckHandler createWithHealthChecks(HealthChecks hc, AuthProvider provider) {
+  static HealthCheckHandler createWithHealthChecks(HealthChecks hc, AuthenticationProvider provider) {
     return new HealthCheckHandlerImpl(hc, provider);
   }
 

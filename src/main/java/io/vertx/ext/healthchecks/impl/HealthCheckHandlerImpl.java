@@ -10,7 +10,7 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.auth.AuthProvider;
+import io.vertx.ext.auth.authentication.AuthenticationProvider;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.HealthChecks;
 import io.vertx.ext.healthchecks.Status;
@@ -29,14 +29,14 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
 
 
   private HealthChecks healthChecks;
-  private final AuthProvider authProvider;
+  private final AuthenticationProvider authProvider;
 
-  public HealthCheckHandlerImpl(Vertx vertx, AuthProvider provider) {
+  public HealthCheckHandlerImpl(Vertx vertx, AuthenticationProvider provider) {
     this.healthChecks = new HealthChecksImpl(vertx);
     this.authProvider = provider;
   }
 
-  public HealthCheckHandlerImpl(HealthChecks hc, AuthProvider provider) {
+  public HealthCheckHandlerImpl(HealthChecks hc, AuthenticationProvider provider) {
     this.healthChecks = Objects.requireNonNull(hc);
     this.authProvider = provider;
   }
