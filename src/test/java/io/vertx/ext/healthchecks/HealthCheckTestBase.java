@@ -76,7 +76,7 @@ public class HealthCheckTestBase {
     String json = Restafari.get("/health")
       .then()
       .statusCode(status)
-      .header("content-type", "application/json;charset=UTF-8")
+      .header("content-type", "application/json")
       .extract().asString();
     return new JsonObject(json);
   }
@@ -85,7 +85,7 @@ public class HealthCheckTestBase {
     String json = Restafari.get(prefix() + route())
       .then()
       .statusCode(status)
-      .header("content-type", "application/json;charset=UTF-8")
+      .header("content-type", "application/json")
       .extract().asString();
     return new JsonObject(json);
   }
@@ -94,7 +94,7 @@ public class HealthCheckTestBase {
     String json = Restafari.get("/health/" + path)
       .then()
       .statusCode(status)
-      .header("content-type", "application/json;charset=UTF-8")
+      .header("content-type", "application/json")
       .extract().asString();
     return new JsonObject(json);
   }
@@ -103,7 +103,7 @@ public class HealthCheckTestBase {
     String json = Restafari.get(prefix() + route() + "/" + path)
       .then()
       .statusCode(status)
-      .header("content-type", "application/json;charset=UTF-8")
+      .header("content-type", "application/json")
       .extract().asString();
     return new JsonObject(json);
   }

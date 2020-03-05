@@ -103,7 +103,7 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
   private Handler<AsyncResult<JsonObject>> healthReportHandler(RoutingContext rc) {
     return json -> {
       HttpServerResponse response = rc.response()
-        .putHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=UTF-8");
+        .putHeader(HttpHeaders.CONTENT_TYPE, "application/json");
       if (json.failed()) {
         if (json.cause().getMessage().toLowerCase().contains("not found")) {
           response.setStatusCode(404);
