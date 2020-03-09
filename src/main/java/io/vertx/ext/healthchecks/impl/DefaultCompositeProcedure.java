@@ -62,7 +62,7 @@ class DefaultCompositeProcedure implements CompositeProcedure {
     }
 
     CompositeFuture.join(completed)
-      .setHandler(ar -> {
+      .onComplete(ar -> {
         boolean success = true;
         for (Map.Entry<String, Promise<JsonObject>> entry : tasks.entrySet()) {
           Future<JsonObject> json = entry.getValue().future();

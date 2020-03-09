@@ -34,7 +34,7 @@ class DefaultProcedure implements Procedure {
   public void check(Handler<JsonObject> resultHandler) {
     try {
       Promise<Status> promise = Promise.promise();
-      promise.future().setHandler(ar -> {
+      promise.future().onComplete(ar -> {
           if (ar.cause() instanceof ProcedureException) {
             resultHandler.handle(StatusHelper.onError(name, (ProcedureException) ar.cause()));
           } else {
