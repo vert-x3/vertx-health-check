@@ -10,6 +10,8 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.auth.AuthProvider;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.HealthChecks;
@@ -27,6 +29,7 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
 
   //TODO Event Bus support
 
+  private static Logger log = LoggerFactory.getLogger(HealthCheckHandler.class);
 
   private HealthChecks healthChecks;
   private final AuthProvider authProvider;
@@ -83,9 +86,14 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
       if (rc.request().method() == HttpMethod.POST
         && rc.request().getHeader(HttpHeaders.CONTENT_TYPE) != null
         && rc.request().getHeader(HttpHeaders.CONTENT_TYPE).contains("application/json")) {
-        JsonObject json = rc.getBodyAsJson();
-        if (json != null) {
-          authData.mergeIn(json);
+        JsonObject json;
+        try {
+          json = rc.getBodyAsJson();
+          if (json != null) {
+            authData.mergeIn(json);
+          }
+        } catch (Exception err) {
+          log.error("Invalid authentication json body", err);
         }
       }
       authProvider.authenticate(authData, ar -> {

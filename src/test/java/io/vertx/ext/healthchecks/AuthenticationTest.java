@@ -3,7 +3,10 @@ package io.vertx.ext.healthchecks;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientRequest;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.AuthProvider;
 import io.vertx.ext.auth.User;
@@ -12,6 +15,7 @@ import org.junit.Test;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 
@@ -139,19 +143,28 @@ public class AuthenticationTest extends HealthCheckTestBase {
 
   @Test
   public void testAuthenticationFailedUsingBodyBecauseOfMissingBody() throws Exception {
+    testAuthenticationFailedUsingBody(HttpClientRequest::end);
+  }
+
+  @Test
+  public void testAuthenticationFailedUsingBodyBecauseOfInvalidBody() throws Exception {
+    testAuthenticationFailedUsingBody(req -> req.end("not-json"));
+  }
+
+  private void testAuthenticationFailedUsingBody(Consumer<HttpClientRequest> sender) throws Exception {
     // Need to use client since Restafari will not allow to perform POST without body
     HttpClient client = vertx.createHttpClient();
     try {
       CompletableFuture<Void> res = new CompletableFuture<>();
-      client.post(8080, "localhost", "/post-health", resp -> {
+      HttpClientRequest request = client.post(8080, "localhost", "/post-health", resp -> {
         if (resp.statusCode() != 403) {
           res.completeExceptionally(new AssertionFailedError("Unexpected status code " + resp.statusCode()));
         } else {
           res.complete(null);
         }
       })
-        .putHeader(CONTENT_TYPE, "application/json")
-        .end();
+        .putHeader(CONTENT_TYPE, "application/json");
+      sender.accept(request);
       res.get(20, TimeUnit.SECONDS);
     } finally {
       client.close();
