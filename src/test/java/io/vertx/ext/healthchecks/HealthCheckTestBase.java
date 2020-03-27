@@ -8,6 +8,8 @@ import io.vertx.ext.web.handler.BodyHandler;
 import org.junit.After;
 import org.junit.Before;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.jayway.awaitility.Awaitility.await;
@@ -58,10 +60,10 @@ public class HealthCheckTestBase {
   }
 
   @After
-  public void tearDown() {
-    AtomicBoolean done = new AtomicBoolean();
-    vertx.close(v -> done.set(v.succeeded()));
-    await().untilAtomic(done, is(true));
+  public void tearDown() throws Exception {
+    CountDownLatch latch = new CountDownLatch(1);
+    vertx.close(v -> latch.countDown());
+    latch.await(20, TimeUnit.SECONDS);
   }
 
   protected String prefix() {

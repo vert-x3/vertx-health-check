@@ -48,10 +48,10 @@ public class CommonHealthChecksTest extends HealthCheckTestBase {
       5000L,
       future -> client.getConnection(connection -> {
         if (connection.failed()) {
-          future.fail(connection.cause());
+          future.tryFail(connection.cause());
         } else {
           connection.result().close();
-          future.complete(Status.OK());
+          future.tryComplete(Status.OK());
         }
       }));
   }
