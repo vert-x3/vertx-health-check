@@ -3,10 +3,15 @@ package io.vertx.ext.healthchecks;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.http.HttpClient;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.AuthProvider;
 import io.vertx.ext.auth.User;
+import junit.framework.AssertionFailedError;
 import org.junit.Test;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 
@@ -132,6 +137,26 @@ public class AuthenticationTest extends HealthCheckTestBase {
       .statusCode(403);
   }
 
+  @Test
+  public void testAuthenticationFailedUsingBodyBecauseOfMissingBody() throws Exception {
+    // Need to use client since Restafari will not allow to perform POST without body
+    HttpClient client = vertx.createHttpClient();
+    try {
+      CompletableFuture<Void> res = new CompletableFuture<>();
+      client.post(8080, "localhost", "/post-health", resp -> {
+        if (resp.statusCode() != 403) {
+          res.completeExceptionally(new AssertionFailedError("Unexpected status code " + resp.statusCode()));
+        } else {
+          res.complete(null);
+        }
+      })
+        .putHeader(CONTENT_TYPE, "application/json")
+        .end();
+      res.get(20, TimeUnit.SECONDS);
+    } finally {
+      client.close();
+    }
+  }
 
   private class FakeUser implements User {
     private final String name;
