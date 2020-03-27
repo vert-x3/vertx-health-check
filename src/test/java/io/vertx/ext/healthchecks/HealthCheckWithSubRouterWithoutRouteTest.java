@@ -21,4 +21,5 @@ public class HealthCheckWithSubRouterWithoutRouteTest extends HealthCheckWithSub
   public void testRetrievingALeaf() {
     super.testRetrievingALeaf();
   }
+
 }
