@@ -5,8 +5,10 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
+import io.vertx.core.impl.ContextInternal;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.healthchecks.HealthChecks;
+import io.vertx.ext.healthchecks.CheckResult;
 import io.vertx.ext.healthchecks.Status;
 
 import java.util.Objects;
@@ -84,17 +86,43 @@ public class HealthChecksImpl implements HealthChecks {
     return this;
   }
 
-
   @Override
   public HealthChecks invoke(Handler<JsonObject> resultHandler) {
-    compute(root, resultHandler);
+    checkStatus(ar -> resultHandler.handle(ar.result().toJson()));
     return this;
   }
 
   @Override
   public HealthChecks invoke(String name, Handler<AsyncResult<JsonObject>> resultHandler) {
+    checkStatus(name, ar -> resultHandler.handle(ar.map(CheckResult::toJson)));
+    return this;
+  }
+
+  @Override
+  public Future<CheckResult> checkStatus() {
+    Promise<CheckResult> promise = ((ContextInternal)vertx.getOrCreateContext()).promise();
+    checkStatus(promise);
+    return promise.future();
+  }
+
+  @Override
+  public void checkStatus(Handler<AsyncResult<CheckResult>> resultHandler) {
+    Promise<CheckResult> promise = ((ContextInternal)vertx.getOrCreateContext()).promise(resultHandler);
+    compute(root, promise);
+  }
+
+  @Override
+  public Future<CheckResult> checkStatus(String name) {
+    Promise<CheckResult> promise = ((ContextInternal)vertx.getOrCreateContext()).promise();
+    checkStatus(name, promise);
+    return promise.future();
+  }
+
+  @Override
+  public void checkStatus(String name, Handler<AsyncResult<CheckResult>> resultHandler) {
+    Promise<CheckResult> promise = ((ContextInternal)vertx.getOrCreateContext()).promise(resultHandler);
     if (name == null || name.isEmpty() || name.equals("/")) {
-      return invoke(json -> resultHandler.handle(Future.succeededFuture(json)));
+      checkStatus(promise);
     } else {
       String[] segments = name.split("/");
       Procedure check = root;
@@ -106,26 +134,25 @@ public class HealthChecksImpl implements HealthChecks {
           check = ((CompositeProcedure) check).get(segment);
           if (check == null) {
             // Not found
-            resultHandler.handle(Future.failedFuture("Not found"));
-            return this;
+            promise.fail("Not found");
+            return;
           }
           // Else continue...
         } else {
           // Not a composite
-          resultHandler.handle(Future.failedFuture("'" + segment + "' is not a composite"));
-          return this;
+          promise.fail("'" + segment + "' is not a composite");
+          return;
         }
       }
 
       if (check == null) {
-        resultHandler.handle(null);
-        return this;
+        // ????
+        promise.handle(null);
+        return;
       }
-      compute(check, json -> resultHandler.handle(Future.succeededFuture(json)));
+      compute(check, promise);
     }
-    return this;
   }
-
 
   private CompositeProcedure findLastParent(String[] segments) {
     int i;
@@ -141,9 +168,7 @@ public class HealthChecksImpl implements HealthChecks {
     return parent;
   }
 
-  private void compute(Procedure procedure, Handler<JsonObject> resultHandler) {
-    procedure.check(resultHandler);
+  private void compute(Procedure procedure, Promise<CheckResult> resultHandler) {
+    procedure.check(resultHandler::complete);
   }
-
-
 }

@@ -8,6 +8,10 @@ import io.vertx.core.json.JsonObject;
  */
 public class Assertions {
 
+  public static CheckAssert assertThatCheck(CheckResult res) {
+    return new CheckAssert(res.toJson());
+  }
+
   public static CheckAssert assertThatCheck(JsonObject json) {
     return new CheckAssert(json);
   }

@@ -138,7 +138,13 @@ public class HealthCheckExamples {
 
   public void publishOnEventBus(Vertx vertx, HealthChecks healthChecks) {
     vertx.eventBus().consumer("health",
-      message -> healthChecks.invoke(message::reply));
+      message -> healthChecks.checkStatus(ar -> {
+        if (ar.succeeded()) {
+          message.reply(ar.result());
+        } else {
+          message.fail(0, ar.cause().getMessage());
+        }
+      }));
   }
 
 }

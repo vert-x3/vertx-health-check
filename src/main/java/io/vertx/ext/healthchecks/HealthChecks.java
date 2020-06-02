@@ -3,9 +3,11 @@ package io.vertx.ext.healthchecks;
 import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.RequestOptions;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.healthchecks.impl.HealthChecksImpl;
 
@@ -91,5 +93,32 @@ public interface HealthChecks {
    */
   @Fluent
   HealthChecks invoke(String name, Handler<AsyncResult<JsonObject>> resultHandler);
+
+  /**
+   * Invokes the registered procedures.
+   *
+   * @param resultHandler the result handler, must not be {@code null}. The handler received the computed
+   *                      {@link CheckResult}.
+   */
+  void checkStatus(Handler<AsyncResult<CheckResult>> resultHandler);
+
+  /**
+   * Like {@link #checkStatus(Handler)} but returns a {@code Future} of the asynchronous result
+   */
+  Future<CheckResult> checkStatus();
+
+  /**
+   * Invokes the registered procedure with the given name and sub-procedures.
+   *
+   * @param resultHandler the result handler, must not be {@code null}. The handler received an
+   *                      {@link AsyncResult} marked as failed if the procedure with the given name cannot
+   *                      be found or invoked.
+   */
+  void checkStatus(String name, Handler<AsyncResult<CheckResult>> resultHandler);
+
+  /**
+   * Like {@link #checkStatus(String, Handler)} but returns a {@code Future} of the asynchronous result
+   */
+  Future<CheckResult> checkStatus(String name);
 
 }

@@ -1,9 +1,11 @@
 package io.vertx.ext.healthchecks.impl;
 
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.healthchecks.CheckResult;
 import io.vertx.ext.healthchecks.Status;
 
 import java.util.Objects;
@@ -31,16 +33,10 @@ class DefaultProcedure implements Procedure {
   }
 
   @Override
-  public void check(Handler<JsonObject> resultHandler) {
+  public void check(Handler<CheckResult> resultHandler) {
     try {
       Promise<Status> promise = Promise.promise();
-      promise.future().onComplete(ar -> {
-          if (ar.cause() instanceof ProcedureException) {
-            resultHandler.handle(StatusHelper.onError(name, (ProcedureException) ar.cause()));
-          } else {
-            resultHandler.handle(StatusHelper.from(name, ar));
-          }
-        });
+      promise.future().onComplete(ar -> resultHandler.handle(from(name, ar)));
 
       if (timeout >= 0) {
         vertx.setTimer(timeout, l -> promise.tryFail(new ProcedureException("Timeout")));
@@ -53,6 +49,22 @@ class DefaultProcedure implements Procedure {
       }
     } catch (Exception e) {
       e.printStackTrace();
+    }
+  }
+
+  public static CheckResult from(String name, AsyncResult<?> ar) {
+    if (ar.succeeded()) {
+      // We may get a JSON Object, if completed using:
+      // future.complete({ok: true});
+      Status res = null;
+      if (ar.result() instanceof Status) {
+        res = (Status) ar.result();
+      } else if (ar.result() instanceof JsonObject) {
+        res = new Status((JsonObject) ar.result());
+      }
+      return CheckResult.from(name, res);
+    } else {
+      return CheckResult.from(name, ar.cause());
     }
   }
 }

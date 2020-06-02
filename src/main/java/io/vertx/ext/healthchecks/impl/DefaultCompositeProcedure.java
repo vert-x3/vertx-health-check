@@ -1,15 +1,10 @@
 package io.vertx.ext.healthchecks.impl;
 
-import io.vertx.core.CompositeFuture;
-import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.Promise;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
+import io.vertx.ext.healthchecks.CheckResult;
 
 import java.util.*;
-
-import static io.vertx.ext.healthchecks.impl.StatusHelper.isUp;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author <a href="http://escoffier.me">Clement Escoffier</a>
@@ -42,61 +37,48 @@ class DefaultCompositeProcedure implements CompositeProcedure {
   }
 
   @Override
-  public void check(Handler<JsonObject> resultHandler) {
-    Map<String, Procedure> copy = new HashMap<>();
+  public void check(Handler<CheckResult> resultHandler) {
+    List<Map.Entry<String, Procedure>> copy;
     synchronized (this) {
-      copy.putAll(children);
+      copy = new ArrayList<>(children.entrySet());
     }
 
-    JsonObject result = new JsonObject();
-    JsonArray checks = new JsonArray();
-    result.put("checks", checks);
+    List<CheckResult> checks = new ArrayList<>();
+    int size = copy.size();
+    CheckResult[] completed = new CheckResult[size];
 
-    Map<String, Promise<JsonObject>> tasks = new HashMap<>();
-    List<Future> completed = new ArrayList<>();
-    for (Map.Entry<String, Procedure> entry : copy.entrySet()) {
-      Promise<JsonObject> promise = Promise.promise();
-      completed.add(promise.future());
-      tasks.put(entry.getKey(), promise);
-      entry.getValue().check(promise::complete);
+    Runnable task = () -> {
+      for (int j = 0;j < size;j++) {
+        CheckResult json = completed[j];
+        if (json.getId() == null) {
+          json.setId(copy.get(j).getKey());
+        }
+        checks.add(json);
+      }
+
+      CheckResult result = new CheckResult();
+      result.setChecks(checks);
+
+      resultHandler.handle(result);
+    };
+
+    if (size == 0) {
+      task.run();
+      return;
     }
 
-    CompositeFuture.join(completed)
-      .onComplete(ar -> {
-        boolean success = true;
-        for (Map.Entry<String, Promise<JsonObject>> entry : tasks.entrySet()) {
-          Future<JsonObject> json = entry.getValue().future();
-          boolean up = isUp(json);
-          success = success && up;
+    AtomicInteger count = new AtomicInteger(size);
 
-          JsonObject r = new JsonObject()
-            .put("id", json.result().getString("id", entry.getKey()))
-            .put("status", up ? "UP" : "DOWN");
 
-          if (json.result() != null) {
-            JsonObject data = json.result().getJsonObject("data");
-            JsonArray children = json.result().getJsonArray("checks");
-            if (data != null) {
-              data.remove("result");
-              r.put("data", data);
-            } else if (children != null) {
-              r.put("checks", children);
-            }
-          }
-
-          checks.add(r);
+    for (int i = 0; i < size; i++) {
+      int idx = i;
+      Map.Entry<String, Procedure> entry = copy.get(idx);
+      entry.getValue().check(res -> {
+        completed[idx] = res;
+        if (count.decrementAndGet() == 0) {
+          task.run();
         }
-
-        if (success) {
-          result.put("outcome", "UP");
-        } else {
-          result.put("outcome", "DOWN");
-        }
-
-        resultHandler.handle(result);
-
       });
+    }
   }
-
-
 }

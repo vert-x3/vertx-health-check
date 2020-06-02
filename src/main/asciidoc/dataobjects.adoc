@@ -1,5 +1,21 @@
 = Cheatsheets
 
+[[CheckResult]]
+== CheckResult
+
+++++
+++++
+'''
+
+[cols=">25%,25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[data]]`@data`|`Json object`|-
+|[[id]]`@id`|`String`|-
+|[[up]]`@up`|`Boolean`|-
+|===
+
 [[Status]]
 == Status
 

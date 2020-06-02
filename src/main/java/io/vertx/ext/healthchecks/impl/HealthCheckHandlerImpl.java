@@ -1,6 +1,5 @@
 package io.vertx.ext.healthchecks.impl;
 
-import io.vertx.codegen.annotations.Nullable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
@@ -10,17 +9,18 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.authentication.AuthenticationProvider;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.HealthChecks;
+import io.vertx.ext.healthchecks.CheckResult;
 import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.RoutingContext;
 
+import java.util.List;
 import java.util.Objects;
 
-import static io.vertx.ext.healthchecks.impl.StatusHelper.isUp;
+import static io.vertx.ext.healthchecks.CheckResult.isUp;
 
 /**
  * @author <a href="http://escoffier.me">Clement Escoffier</a>
@@ -100,15 +100,15 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
         if (ar.failed()) {
           rc.response().setStatusCode(403).end();
         } else {
-          healthChecks.invoke(id, healthReportHandler(rc));
+          healthChecks.checkStatus(id, healthReportHandler(rc));
         }
       });
     } else {
-      healthChecks.invoke(id, healthReportHandler(rc));
+      healthChecks.checkStatus(id, healthReportHandler(rc));
     }
   }
 
-  private Handler<AsyncResult<JsonObject>> healthReportHandler(RoutingContext rc) {
+  private Handler<AsyncResult<CheckResult>> healthReportHandler(RoutingContext rc) {
     return json -> {
       HttpServerResponse response = rc.response()
         .putHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=UTF-8");
@@ -125,14 +125,14 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
     };
   }
 
-  private void buildResponse(JsonObject json, HttpServerResponse response) {
+  private void buildResponse(CheckResult json, HttpServerResponse response) {
     int status = isUp(json) ? 200 : 503;
 
     if (status == 503 && hasProcedureError(json)) {
       status = 500;
     }
 
-    JsonArray checks = json.getJsonArray("checks");
+    List<CheckResult> checks = json.getChecks();
     if (status == 200 && checks != null && checks.isEmpty()) {
       // Special case, no procedure installed.
       response.setStatusCode(204).end();
@@ -141,7 +141,7 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
 
     response
       .setStatusCode(status)
-      .end(transform(json));
+      .end(json.toJson().encode());
   }
 
   @Override
@@ -150,16 +150,16 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
     return this;
   }
 
-  private boolean hasProcedureError(JsonObject json) {
-    JsonObject data = json.getJsonObject("data");
+  private boolean hasProcedureError(CheckResult json) {
+    JsonObject data = json.getData();
     if (data != null && data.getBoolean("procedure-execution-failure", false)) {
       return true;
     }
 
-    JsonArray checks = json.getJsonArray("checks");
+    List<CheckResult> checks = json.getChecks();
     if (checks != null) {
       for (int i = 0; i < checks.size(); i++) {
-        JsonObject check = checks.getJsonObject(i);
+        CheckResult check = checks.get(i);
         if (hasProcedureError(check)) {
           return true;
         }
@@ -167,14 +167,5 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
     }
 
     return false;
-  }
-
-  private String transform(JsonObject json) {
-    String status = json.getString("status");
-    String outcome = json.getString("outcome");
-    if (status != null && outcome == null) {
-      json.put("outcome", status);
-    }
-    return json.encode();
   }
 }
