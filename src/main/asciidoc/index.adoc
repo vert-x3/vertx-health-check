@@ -67,18 +67,18 @@ anytime, even after the route registration:
 
 A procedure is a function checking some aspect of the system to deduce the current health. It reports a
 {@link io.vertx.ext.healthchecks.Status} indicating whether or not the test has passed or failed. This function
-must not block and report to the given {@link io.vertx.core.Future} whether or not it succeed.
+must not block and report to the given {@link io.vertx.core.Promise} whether or not it succeed.
 
 When you register a procedure, you give a name, and the function (handler) executing the check.
 
 Rules deducing the status are the following
 
-* if the future is mark as failed, the check is considered as _KO_
-* if the future is completed successfully but without a {@link io.vertx.ext.healthchecks.Status}, the check
+* if the promise is mark as failed, the check is considered as _KO_
+* if the promise is completed successfully but without a {@link io.vertx.ext.healthchecks.Status}, the check
 is considered as _OK_.
-* if the future is completed successfully with a {@link io.vertx.ext.healthchecks.Status} marked as _OK_,
+* if the promise is completed successfully with a {@link io.vertx.ext.healthchecks.Status} marked as _OK_,
 the check is considered as _OK_.
-* if the future is completed successfully with a {@link io.vertx.ext.healthchecks.Status} marked as _KO_,
+* if the promise is completed successfully with a {@link io.vertx.ext.healthchecks.Status} marked as _KO_,
 the check is considered as _KO_.
 
 {@link io.vertx.ext.healthchecks.Status} can also provide additional data:
