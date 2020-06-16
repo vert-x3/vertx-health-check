@@ -158,8 +158,7 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
 
     List<CheckResult> checks = json.getChecks();
     if (checks != null) {
-      for (int i = 0; i < checks.size(); i++) {
-        CheckResult check = checks.get(i);
+      for (CheckResult check : checks) {
         if (hasProcedureError(check)) {
           return true;
         }

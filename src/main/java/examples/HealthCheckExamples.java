@@ -18,17 +18,24 @@ public class HealthCheckExamples {
   public void example1(Vertx vertx) {
     HealthChecks hc = HealthChecks.create(vertx);
 
-    hc.register("my-procedure", promise -> promise.complete(Status.OK()));
+    hc.register(
+      "my-procedure",
+      promise -> promise.complete(Status.OK()));
 
     // Register with a timeout. The check fails if it does not complete in time.
     // The timeout is given in ms.
-    hc.register("my-procedure", 2000, promise -> promise.complete(Status.OK()));
+    hc.register(
+      "my-procedure",
+      2000,
+      promise -> promise.complete(Status.OK()));
 
   }
 
   public void example2(Vertx vertx) {
     HealthCheckHandler healthCheckHandler1 = HealthCheckHandler.create(vertx);
-    HealthCheckHandler healthCheckHandler2 = HealthCheckHandler.createWithHealthChecks(HealthChecks.create(vertx));
+
+    HealthCheckHandler healthCheckHandler2 = HealthCheckHandler
+      .createWithHealthChecks(HealthChecks.create(vertx));
 
     Router router = Router.router(vertx);
     // Populate the router with routes...
@@ -54,13 +61,16 @@ public class HealthCheckExamples {
 
     // Register another procedure with a timeout (2s). If the procedure does not complete in
     // the given time, the check fails.
-    healthCheckHandler.register("my-procedure-name-with-timeout", 2000, promise -> {
-      // Do the check ....
-      // Upon success do
-      promise.complete(Status.OK());
-      // In case of failure do:
-      promise.complete(Status.KO());
-    });
+    healthCheckHandler.register(
+      "my-procedure-name-with-timeout",
+      2000,
+      promise -> {
+        // Do the check ....
+        // Upon success do
+        promise.complete(Status.OK());
+        // In case of failure do:
+        promise.complete(Status.KO());
+      });
 
     router.get("/health").handler(healthCheckHandler);
   }
@@ -72,12 +82,16 @@ public class HealthCheckExamples {
     // Register procedures
     // Procedure can be grouped. The group is deduced using a name with "/".
     // Groups can contains other group
-    healthCheckHandler.register("a-group/my-procedure-name", promise -> {
-      //....
-    });
-    healthCheckHandler.register("a-group/a-second-group/my-second-procedure-name", promise -> {
-      //....
-    });
+    healthCheckHandler.register(
+      "a-group/my-procedure-name",
+      promise -> {
+        //....
+      });
+    healthCheckHandler.register(
+      "a-group/a-second-group/my-second-procedure-name",
+      promise -> {
+        //....
+      });
 
     router.get("/health").handler(healthCheckHandler);
   }
@@ -111,40 +125,34 @@ public class HealthCheckExamples {
 
   public void service(ServiceDiscovery discovery, HealthCheckHandler handler) {
     handler.register("my-service",
-      promise -> HttpEndpoint.getClient(discovery,
-        (rec) -> "my-service".equals(rec.getName()),
-        client -> {
-          if (client.failed()) {
-            promise.fail(client.cause());
-          } else {
-            client.result().close();
-            promise.complete(Status.OK());
-          }
-        }));
+      promise ->
+        HttpEndpoint.getClient(discovery, rec -> "my-service".equals(rec.getName()),
+          client -> {
+            if (client.failed()) {
+              promise.fail(client.cause());
+            } else {
+              client.result().close();
+              promise.complete(Status.OK());
+            }
+          }));
   }
 
   public void eventbus(Vertx vertx, HealthCheckHandler handler) {
     handler.register("receiver",
       promise ->
-        vertx.eventBus().request("health", "ping", response -> {
-          if (response.succeeded()) {
+        vertx.eventBus().request("health", "ping")
+          .onSuccess(msg -> {
             promise.complete(Status.OK());
-          } else {
+          })
+          .onFailure(err -> {
             promise.complete(Status.KO());
-          }
-        })
-    );
+          }));
   }
 
   public void publishOnEventBus(Vertx vertx, HealthChecks healthChecks) {
     vertx.eventBus().consumer("health",
-      message -> healthChecks.checkStatus(ar -> {
-        if (ar.succeeded()) {
-          message.reply(ar.result());
-        } else {
-          message.fail(0, ar.cause().getMessage());
-        }
-      }));
+      message -> healthChecks.checkStatus()
+        .onSuccess(message::reply)
+        .onFailure(err -> message.fail(0, err.getMessage())));
   }
-
 }
