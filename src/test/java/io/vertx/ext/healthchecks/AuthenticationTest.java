@@ -154,21 +154,27 @@ public class AuthenticationTest extends HealthCheckTestBase {
     HttpClient client = vertx.createHttpClient();
     try {
       CompletableFuture<Void> res = new CompletableFuture<>();
-      HttpClientRequest request = client.request(HttpMethod.POST, 8080, "localhost", "/post-health");
-      request.putHeader(CONTENT_TYPE, "application/json");
-      request.onComplete(ar -> {
-        if (ar.succeeded()) {
-          HttpClientResponse resp = ar.result();
-          if (resp.statusCode() != 403) {
-            res.completeExceptionally(new AssertionFailedError("Unexpected status code " + resp.statusCode()));
-          } else {
-            res.complete(null);
-          }
+      client.request(HttpMethod.POST, 8080, "localhost", "/post-health").onComplete(ar1 -> {
+        if (ar1.succeeded()) {
+          HttpClientRequest request = ar1.result();
+          request.putHeader(CONTENT_TYPE, "application/json");
+          request.onComplete(ar2 -> {
+            if (ar2.succeeded()) {
+              HttpClientResponse resp = ar2.result();
+              if (resp.statusCode() != 403) {
+                res.completeExceptionally(new AssertionFailedError("Unexpected status code " + resp.statusCode()));
+              } else {
+                res.complete(null);
+              }
+            } else {
+              res.completeExceptionally(ar2.cause());
+            }
+          });
+          sender.accept(request);
         } else {
-          res.completeExceptionally(ar.cause());
+          res.completeExceptionally(ar1.cause());
         }
       });
-      sender.accept(request);
       res.get(20, TimeUnit.SECONDS);
     } finally {
       client.close();
