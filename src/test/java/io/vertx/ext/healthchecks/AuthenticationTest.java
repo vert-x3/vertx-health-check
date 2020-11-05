@@ -158,7 +158,7 @@ public class AuthenticationTest extends HealthCheckTestBase {
         if (ar1.succeeded()) {
           HttpClientRequest request = ar1.result();
           request.putHeader(CONTENT_TYPE, "application/json");
-          request.onComplete(ar2 -> {
+          request.response(ar2 -> {
             if (ar2.succeeded()) {
               HttpClientResponse resp = ar2.result();
               if (resp.statusCode() != 403) {
