@@ -166,13 +166,13 @@ If a procedure throws an error, reports a failure (exception), the JSON document
 
 This section provides example of common health checks.
 
-=== JDBC
+=== SQL client
 
-This check reports whether or not a connection to the database can be established:
+This check reports whether a connection to the database can be established:
 
 [source, $lang]
 ----
-{@link examples.HealthCheckExamples#jdbc(io.vertx.ext.jdbc.JDBCClient, HealthCheckHandler)}
+{@link examples.HealthCheckExamples#dbPool(io.vertx.sqlclient.Pool, HealthCheckHandler)}
 ----
 
 === Service availability

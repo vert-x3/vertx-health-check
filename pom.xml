@@ -89,6 +89,11 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-jdbc-client</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>2.4.0</version>
@@ -103,7 +108,7 @@
     <!-- Optional parts (documentation) -->
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-jdbc-client</artifactId>
+      <artifactId>vertx-sql-client</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>

@@ -1,10 +1,10 @@
 package io.vertx.ext.healthchecks;
 
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.unit.junit.Repeat;
 import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.vertx.jdbcclient.JDBCPool;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.HttpEndpoint;
 import org.junit.Rule;
@@ -31,7 +31,7 @@ public class CommonHealthChecksTest extends HealthCheckTestBase {
     JsonObject config = new JsonObject()
       .put("url", "jdbc:hsqldb:mem:test?shutdown=true")
       .put("driver_class", "org.hsqldb.jdbcDriver");
-    JDBCClient client = JDBCClient.createShared(vertx, config);
+    JDBCPool client = JDBCPool.pool(vertx, config);
 
     registerJDBCProcedure(client);
     await().until(() -> {
@@ -43,7 +43,7 @@ public class CommonHealthChecksTest extends HealthCheckTestBase {
     });
   }
 
-  private void registerJDBCProcedure(JDBCClient client) {
+  private void registerJDBCProcedure(JDBCPool client) {
     handler.register("database",
       5000L,
       future -> client.getConnection(connection -> {
@@ -62,7 +62,7 @@ public class CommonHealthChecksTest extends HealthCheckTestBase {
     JsonObject config = new JsonObject()
       .put("url", "jdbc:missing:mem:test?shutdown=true")
       .put("driver_class", "org.hsqldb.jdbcDriver");
-    JDBCClient client = JDBCClient.createShared(vertx, config);
+    JDBCPool client = JDBCPool.pool(vertx, config);
 
     registerJDBCProcedure(client);
 
