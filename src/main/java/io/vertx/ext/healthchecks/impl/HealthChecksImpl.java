@@ -99,6 +99,11 @@ public class HealthChecksImpl implements HealthChecks {
   }
 
   @Override
+  public Future<JsonObject> invoke(String name) {
+    return checkStatus(name).map(CheckResult::toJson);
+  }
+
+  @Override
   public Future<CheckResult> checkStatus() {
     Promise<CheckResult> promise = ((ContextInternal)vertx.getOrCreateContext()).promise();
     checkStatus(promise);

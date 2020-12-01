@@ -94,6 +94,11 @@ public interface HealthChecks {
   HealthChecks invoke(String name, Handler<AsyncResult<JsonObject>> resultHandler);
 
   /**
+   * Like {@link #invoke(String, Handler)} but with a future of the result.
+   */
+  Future<JsonObject> invoke(String name);
+
+  /**
    * Invokes the registered procedures.
    *
    * @param resultHandler the result handler, must not be {@code null}. The handler received the computed
