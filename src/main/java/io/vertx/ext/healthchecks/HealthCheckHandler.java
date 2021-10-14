@@ -2,12 +2,15 @@ package io.vertx.ext.healthchecks;
 
 import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.VertxGen;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.ext.auth.authentication.AuthenticationProvider;
 import io.vertx.ext.healthchecks.impl.HealthCheckHandlerImpl;
 import io.vertx.ext.web.RoutingContext;
+
+import java.util.function.Function;
 
 /**
  * A Vert.x Web handler on which you register health check procedure. It computes the outcome status (`UP` or `DOWN`)
@@ -114,5 +117,13 @@ public interface HealthCheckHandler extends Handler<RoutingContext> {
   @Fluent
   HealthCheckHandler unregister(String name);
 
+  /**
+   * Sets a function which will be invoked before the {@link CheckResult} gets written to clients.
+   *
+   * @param resultMapper the {@link Function} used to manipulate the {@link CheckResult}, {@code null} means no result mapper function enabled.
+   * @return the current {@link HealthCheckHandler}
+   */
+  @Fluent
+  HealthCheckHandler resultMapper(Function<CheckResult, Future<CheckResult>> resultMapper);
 
 }
