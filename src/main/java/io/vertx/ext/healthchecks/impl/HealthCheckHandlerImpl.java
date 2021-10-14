@@ -1,6 +1,7 @@
 package io.vertx.ext.healthchecks.impl;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -19,6 +20,7 @@ import io.vertx.ext.web.RoutingContext;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 import static io.vertx.ext.healthchecks.CheckResult.isUp;
 
@@ -34,6 +36,7 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
 
   private HealthChecks healthChecks;
   private final AuthenticationProvider authProvider;
+  private volatile Function<CheckResult, Future<CheckResult>> resultMapper;
 
   public HealthCheckHandlerImpl(Vertx vertx, AuthenticationProvider provider) {
     this.healthChecks = new HealthChecksImpl(vertx);
@@ -57,6 +60,11 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
     return this;
   }
 
+  @Override
+  public HealthCheckHandler resultMapper(Function<CheckResult, Future<CheckResult>> resultMapper) {
+    this.resultMapper = resultMapper;
+    return this;
+  }
 
   @Override
   public void handle(RoutingContext rc) {
@@ -109,7 +117,7 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
   }
 
   private Handler<AsyncResult<CheckResult>> healthReportHandler(RoutingContext rc) {
-    return json -> {
+    Handler<AsyncResult<CheckResult>> handler = json -> {
       HttpServerResponse response = rc.response()
         .putHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=UTF-8");
       if (json.failed()) {
@@ -123,6 +131,12 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
         buildResponse(json.result(), response);
       }
     };
+    if (this.resultMapper != null) {
+      Promise<CheckResult> promise = Promise.promise();
+      promise.future().flatMap(resultMapper).onComplete(handler);
+      return promise;
+    }
+    return handler;
   }
 
   private void buildResponse(CheckResult json, HttpServerResponse response) {

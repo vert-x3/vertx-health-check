@@ -1,13 +1,19 @@
 package io.vertx.ext.healthchecks;
 
 import com.google.common.collect.ImmutableMap;
+import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.junit.Test;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+
 import static io.vertx.ext.healthchecks.Assertions.assertThatCheck;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.data.MapEntry.entry;
 
 /**
@@ -379,5 +385,27 @@ public class HealthCheckTest extends HealthCheckTestBase {
     handler.register("bad", null);
   }
 
+  @Test
+  public void testWithResultHandler() throws Exception {
+    CountDownLatch latch = new CountDownLatch(1);
+    Function<CheckResult, Future<CheckResult>> resultMapper = cr -> {
+      assertThatCheck(cr).hasOutcomeUp()
+        .hasChildren(1)
+        .hasAndGetCheck("bar").isUp().done();
+      latch.countDown();
+      cr.getChecks().add(CheckResult.from("new-check", Status.OK()));
+      return Future.succeededFuture(cr);
+    };
+    handler.register("bar", future -> future.complete(Status.OK()));
+    handler.resultMapper(resultMapper);
+    JsonObject json = get(200);
+    assertThatCheck(json).hasOutcomeUp()
+      .hasChildren(2)
+      .hasAndGetCheck("bar").isUp().done()
+      .hasAndGetCheck("new-check").isUp().done();
+    if (!latch.await(2, TimeUnit.SECONDS)) {
+      fail("Timeout");
+    }
+  }
 
 }
