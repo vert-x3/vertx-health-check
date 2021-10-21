@@ -76,7 +76,7 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
 
     // We are under a sub-router.
     // Remove the mount prefix from the path
-    if (mount != null && path.startsWith(mount)) {
+    if (mount != null && !mount.equals("/") && path.startsWith(mount)) {
       path = path.substring(mount.length());
     }
 

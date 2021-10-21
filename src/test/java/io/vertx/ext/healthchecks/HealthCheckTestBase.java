@@ -37,6 +37,7 @@ public class HealthCheckTestBase {
     Router sub = Router.router(vertx);
     sub.get("/ping*").handler(handler);
     router.mountSubRouter("/prefix", sub);
+    router.mountSubRouter("/", sub);
 
 
     // Reproducer for https://github.com/vert-x3/vertx-health-check/issues/13
