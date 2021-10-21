@@ -1,6 +1,8 @@
 package io.vertx.ext.healthchecks;
 
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.unit.Async;
+import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.Repeat;
 import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -27,13 +29,13 @@ public class CommonHealthChecksTest extends HealthCheckTestBase {
 
   @Test
   @Repeat(10)
-  public void testJDBC_OK() {
+  public void testJDBC_OK(TestContext testContext) {
     JsonObject config = new JsonObject()
       .put("url", "jdbc:hsqldb:mem:test?shutdown=true")
       .put("driver_class", "org.hsqldb.jdbcDriver");
     JDBCPool client = JDBCPool.pool(vertx, config);
-
-    registerJDBCProcedure(client);
+    Async async = testContext.async();
+    registerJDBCProcedure(client, async);
     await().until(() -> {
       try {
         return get(200) != null;
@@ -41,16 +43,18 @@ public class CommonHealthChecksTest extends HealthCheckTestBase {
         return false;
       }
     });
+    async.await();
   }
 
-  private void registerJDBCProcedure(JDBCPool client) {
+  private void registerJDBCProcedure(JDBCPool client, Async async) {
     handler.register("database",
       5000L,
       future -> client.getConnection(connection -> {
         if (connection.failed()) {
+          client.close(r -> async.countDown());
           future.tryFail(connection.cause());
         } else {
-          connection.result().close();
+          connection.result().close(r -> async.countDown());
           future.tryComplete(Status.OK());
         }
       }));
@@ -58,16 +62,18 @@ public class CommonHealthChecksTest extends HealthCheckTestBase {
 
 
   @Test
-  public void testJDBC_KO() {
+  public void testJDBC_KO(TestContext testContext) {
     JsonObject config = new JsonObject()
       .put("url", "jdbc:missing:mem:test?shutdown=true")
+      .put("acquire_retry_attempts", 1)
       .put("driver_class", "org.hsqldb.jdbcDriver");
     JDBCPool client = JDBCPool.pool(vertx, config);
-
-    registerJDBCProcedure(client);
+    Async async = testContext.async();
+    registerJDBCProcedure(client, async);
 
     // We use 'fail'
-    get(500);
+    get(503);
+    async.await();
   }
 
 
