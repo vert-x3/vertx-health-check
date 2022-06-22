@@ -17,6 +17,7 @@ import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.HealthChecks;
 import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.impl.Utils;
 
 import java.util.Objects;
 
@@ -59,21 +60,14 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
 
   @Override
   public void handle(RoutingContext rc) {
-    String path = rc.request().path();
-    String mount = rc.mountPoint();
-    String route = rc.currentRoute().getPath();
+    // ensure that we get the right offset to the router, either root or sub-router
+    String path = Utils.pathOffset(rc.normalisedPath(), rc);
 
     String id;
 
-    // We are under a sub-router.
-    // Remove the mount prefix from the path
-    if (mount != null && path.startsWith(mount)) {
-      path = path.substring(mount.length());
-    }
-
-    // The route has a path, remove this path from the path
-    if (route != null && path.startsWith(route)) {
-      id = path.substring(route.length());
+    // remove the leading slash to extract the id
+    if (path.length() > 0) {
+      id = path.substring(1);
     } else {
       id = path;
     }
