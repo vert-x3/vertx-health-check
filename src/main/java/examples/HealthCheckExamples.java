@@ -6,9 +6,6 @@ import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.HealthChecks;
 import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.Router;
-import io.vertx.servicediscovery.ServiceDiscovery;
-import io.vertx.servicediscovery.types.HttpEndpoint;
-import io.vertx.sqlclient.Pool;
 
 /**
  * @author <a href="http://escoffier.me">Clement Escoffier</a>
@@ -109,32 +106,6 @@ public class HealthCheckExamples {
     });
 
     router.get("/health").handler(healthCheckHandler);
-  }
-
-  public void dbPool(Pool pool, HealthCheckHandler handler) {
-    handler.register("database",
-      promise -> pool.getConnection(connection -> {
-        if (connection.failed()) {
-          promise.fail(connection.cause());
-        } else {
-          connection.result().close();
-          promise.complete(Status.OK());
-        }
-      }));
-  }
-
-  public void service(ServiceDiscovery discovery, HealthCheckHandler handler) {
-    handler.register("my-service",
-      promise ->
-        HttpEndpoint.getClient(discovery, rec -> "my-service".equals(rec.getName()),
-          client -> {
-            if (client.failed()) {
-              promise.fail(client.cause());
-            } else {
-              client.result().close();
-              promise.complete(Status.OK());
-            }
-          }));
   }
 
   public void eventbus(Vertx vertx, HealthCheckHandler handler) {

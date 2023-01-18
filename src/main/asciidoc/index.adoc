@@ -172,7 +172,15 @@ This check reports whether a connection to the database can be established:
 
 [source, $lang]
 ----
-{@link examples.HealthCheckExamples#dbPool(io.vertx.sqlclient.Pool, HealthCheckHandler)}
+handler.register("database",
+  promise -> pool.getConnection(connection -> {
+    if (connection.failed()) {
+      promise.fail(connection.cause());
+    } else {
+      connection.result().close();
+      promise.complete(Status.OK());
+    }
+  }));
 ----
 
 === Service availability
@@ -181,7 +189,17 @@ This check reports whether or not a service (here a HTTP endpoint) is available 
 
 [source, $lang]
 ----
-{@link examples.HealthCheckExamples#service}
+handler.register("my-service",
+  promise ->
+    HttpEndpoint.getClient(discovery, rec -> "my-service".equals(rec.getName()),
+      client -> {
+        if (client.failed()) {
+          promise.fail(client.cause());
+        } else {
+          client.result().close();
+          promise.complete(Status.OK());
+        }
+      }));
 ----
 
 === Event bus
