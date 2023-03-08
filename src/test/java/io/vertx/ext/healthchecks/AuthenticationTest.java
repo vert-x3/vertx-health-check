@@ -24,15 +24,15 @@ public class AuthenticationTest extends HealthCheckTestBase {
 
   @Override
   AuthenticationProvider getAuthProvider() {
-    return (jsonObject, handler) ->
-      vertx.runOnContext(v -> {
-        if ("admin".equals(jsonObject.getString("X-Username"))
-          && "admin".equals(jsonObject.getString("X-Password"))) {
-          handler.handle(Future.succeededFuture(User.create(new JsonObject().put("login", "admin"))));
-        } else {
-          handler.handle(Future.failedFuture("Not Authorized"));
-        }
-      });
+    return credentials -> {
+      JsonObject jsonObject = credentials.toJson();
+      if ("admin".equals(jsonObject.getString("X-Username"))
+        && "admin".equals(jsonObject.getString("X-Password"))) {
+        return Future.succeededFuture(User.create(new JsonObject().put("login", "admin")));
+      } else {
+        return Future.failedFuture("Not Authorized");
+      }
+    };
   }
 
   @Test

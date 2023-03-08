@@ -32,10 +32,10 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
 
   //TODO Event Bus support
 
-  private Logger log = LoggerFactory.getLogger(HealthCheckHandler.class);
+  private final Logger log = LoggerFactory.getLogger(HealthCheckHandler.class);
 
 
-  private HealthChecks healthChecks;
+  private final HealthChecks healthChecks;
   private final AuthenticationProvider authProvider;
   private volatile Function<CheckResult, Future<CheckResult>> resultMapper;
 
@@ -90,7 +90,7 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
         && rc.request().getHeader(HttpHeaders.CONTENT_TYPE) != null
         && rc.request().getHeader(HttpHeaders.CONTENT_TYPE).contains("application/json")) {
         try {
-          JsonObject body = rc.getBodyAsJson();
+          JsonObject body = rc.body().asJsonObject();
           if (body != null) {
             authData.mergeIn(body);
           }
@@ -98,12 +98,10 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
           log.error("Invalid authentication json body", err);
         }
       }
-      authProvider.authenticate(authData, ar -> {
-        if (ar.failed()) {
-          rc.response().setStatusCode(403).end();
-        } else {
+      authProvider.authenticate(new JsonCredentials(authData))
+        .onFailure(err -> rc.response().setStatusCode(403).end())
+        .onSuccess(user -> {
           healthChecks.checkStatus(id, healthReportHandler(rc));
-        }
       });
     } else {
       healthChecks.checkStatus(id, healthReportHandler(rc));
