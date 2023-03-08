@@ -36,15 +36,15 @@ public class HealthCheckTestBase {
 
     Router sub = Router.router(vertx);
     sub.get("/ping*").handler(handler);
-    router.mountSubRouter("/prefix", sub);
-    router.mountSubRouter("/", sub);
+    router.route("/prefix/*").subRouter(sub);
+    router.route("/*").subRouter(sub);
 
 
     // Reproducer for https://github.com/vert-x3/vertx-health-check/issues/13
     // This sub-router does not pass a path to the route but handle all GET requests.
     Router subRouter = Router.router(vertx);
     subRouter.get().handler(handler);
-    router.mountSubRouter("/no-route", subRouter);
+    router.route("/no-route/*").subRouter(subRouter);
 
     AtomicBoolean done = new AtomicBoolean();
     vertx.createHttpServer()
