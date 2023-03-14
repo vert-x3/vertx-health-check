@@ -101,10 +101,10 @@ public class HealthCheckHandlerImpl implements HealthCheckHandler {
       authProvider.authenticate(new JsonCredentials(authData))
         .onFailure(err -> rc.response().setStatusCode(403).end())
         .onSuccess(user -> {
-          healthChecks.checkStatus(id, healthReportHandler(rc));
+          healthChecks.checkStatus(id).onComplete(healthReportHandler(rc));
       });
     } else {
-      healthChecks.checkStatus(id, healthReportHandler(rc));
+      healthChecks.checkStatus(id).onComplete(healthReportHandler(rc));
     }
   }
 

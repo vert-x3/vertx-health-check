@@ -49,7 +49,7 @@ public class HealthCheckTestBase {
     AtomicBoolean done = new AtomicBoolean();
     vertx.createHttpServer()
       .requestHandler(router)
-      .listen(8080, ar -> done.set(ar.succeeded()));
+      .listen(8080).onComplete(ar -> done.set(ar.succeeded()));
     await().untilAtomic(done, is(true));
 
     Restafari.baseURI = "http://localhost";
@@ -63,7 +63,7 @@ public class HealthCheckTestBase {
   @After
   public void tearDown() throws Exception {
     CountDownLatch latch = new CountDownLatch(1);
-    vertx.close(v -> latch.countDown());
+    vertx.close().onComplete(v -> latch.countDown());
     latch.await(20, TimeUnit.SECONDS);
   }
 
