@@ -34,7 +34,7 @@ public class DefaultCompositeHealthCheckTest {
   @After
   public void tearDown() {
     AtomicBoolean done = new AtomicBoolean();
-    vertx.close(v -> done.set(v.succeeded()));
+    vertx.close().onComplete(v -> done.set(v.succeeded()));
     await().untilAtomic(done, is(true));
   }
 

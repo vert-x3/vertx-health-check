@@ -40,13 +40,13 @@ public class EventBusTest {
 
   @After
   public void tearDown(TestContext tc) {
-    vertx.close(tc.asyncAssertSuccess());
+    vertx.close().onComplete(tc.asyncAssertSuccess());
   }
 
   @Test
   public void testSuccess(TestContext tc) {
     Async async = tc.async();
-    vertx.eventBus().<JsonObject>request("health", "", reply -> {
+    vertx.eventBus().<JsonObject>request("health", "").onComplete(reply -> {
       assertThat(reply).succeeded().hasContent();
       assertThatCheck(reply.result().body()).isUp();
       async.complete();
@@ -60,7 +60,7 @@ public class EventBusTest {
 
     healthChecks.register("my-failing-procedure", future -> future.fail("boom"));
 
-    vertx.eventBus().<JsonObject>request("health", "", reply -> {
+    vertx.eventBus().<JsonObject>request("health", "").onComplete(reply -> {
       assertThat(reply).succeeded().hasContent();
       assertThatCheck(reply.result().body()).isDown();
       async.complete();
@@ -73,7 +73,7 @@ public class EventBusTest {
 
     healthChecks.register("my-failing-procedure", future -> future.complete(Status.KO()));
 
-    vertx.eventBus().<JsonObject>request("health", "", reply -> {
+    vertx.eventBus().<JsonObject>request("health", "").onComplete(reply -> {
       assertThat(reply).succeeded().hasContent();
       assertThatCheck(reply.result().body()).isDown();
       async.complete();
@@ -86,7 +86,7 @@ public class EventBusTest {
 
     healthChecks.register("my-procedure", future -> future.complete(Status.OK()));
 
-    vertx.eventBus().<JsonObject>request("health", "", reply -> {
+    vertx.eventBus().<JsonObject>request("health", "").onComplete(reply -> {
       assertThat(reply).succeeded().hasContent();
       assertThatCheck(reply.result().body()).isUp();
       async.complete();

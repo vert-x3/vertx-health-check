@@ -49,12 +49,12 @@ public class CommonHealthChecksTest extends HealthCheckTestBase {
   private void registerJDBCProcedure(JDBCPool client, Async async) {
     handler.register("database",
       5000L,
-      future -> client.getConnection(connection -> {
+      future -> client.getConnection().onComplete(connection -> {
         if (connection.failed()) {
-          client.close(r -> async.countDown());
+          client.close().onSuccess(r -> async.countDown());
           future.tryFail(connection.cause());
         } else {
-          connection.result().close(r -> async.countDown());
+          connection.result().close().onComplete(r -> async.countDown());
           future.tryComplete(Status.OK());
         }
       }));
@@ -81,7 +81,7 @@ public class CommonHealthChecksTest extends HealthCheckTestBase {
   public void testServiceAvailability_OK() {
     ServiceDiscovery discovery = ServiceDiscovery.create(vertx);
     AtomicBoolean done = new AtomicBoolean();
-    discovery.publish(HttpEndpoint.createRecord("my-service", "localhost"), ar -> {
+    discovery.publish(HttpEndpoint.createRecord("my-service", "localhost")).onComplete(ar -> {
       done.set(ar.succeeded());
     });
     await().untilAtomic(done, is(true));
@@ -93,8 +93,7 @@ public class CommonHealthChecksTest extends HealthCheckTestBase {
   private void registerServiceProcedure(ServiceDiscovery discovery) {
     handler.register("service",
       future -> HttpEndpoint.getClient(discovery,
-        (rec) -> "my-service".equals(rec.getName()),
-        client -> {
+        (rec) -> "my-service".equals(rec.getName())).onComplete(client -> {
           if (client.failed()) {
             future.fail(client.cause());
           } else {
@@ -126,7 +125,7 @@ public class CommonHealthChecksTest extends HealthCheckTestBase {
   private void registerEventBusProcedure() {
     handler.register("receiver",
       future ->
-        vertx.eventBus().request("health", "ping", response -> {
+        vertx.eventBus().request("health", "ping").onComplete(response -> {
           if (response.succeeded()) {
             future.complete(Status.OK());
           } else {
