@@ -92,7 +92,6 @@ public class HealthChecksImpl implements HealthChecks {
     return this;
   }
 
-  @Override
   public HealthChecks invoke(String name, Handler<AsyncResult<JsonObject>> resultHandler) {
     checkStatus(name, ar -> resultHandler.handle(ar.map(CheckResult::toJson)));
     return this;
@@ -110,7 +109,6 @@ public class HealthChecksImpl implements HealthChecks {
     return promise.future();
   }
 
-  @Override
   public void checkStatus(Handler<AsyncResult<CheckResult>> resultHandler) {
     Promise<CheckResult> promise = ((ContextInternal)vertx.getOrCreateContext()).promise(resultHandler);
     compute(root, promise);
@@ -123,7 +121,6 @@ public class HealthChecksImpl implements HealthChecks {
     return promise.future();
   }
 
-  @Override
   public void checkStatus(String name, Handler<AsyncResult<CheckResult>> resultHandler) {
     Promise<CheckResult> promise = ((ContextInternal)vertx.getOrCreateContext()).promise(resultHandler);
     if (name == null || name.isEmpty() || name.equals("/")) {

@@ -2,7 +2,6 @@ package io.vertx.ext.healthchecks;
 
 import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.VertxGen;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
@@ -85,49 +84,23 @@ public interface HealthChecks {
    * Invokes the registered procedure with the given name and sub-procedures. It computes the overall
    * outcome.
    *
-   * @param resultHandler the result handler, must not be {@code null}. The handler received an
-   *                      {@link AsyncResult} marked as failed if the procedure with the given name cannot
+   * @return a future notified with a failure if the procedure with the given name cannot
    *                      be found or invoked.
-   * @return the current {@link HealthChecks}
-   * @deprecated use {@link #invoke(String)} instead
-   */
-  @Fluent
-  @Deprecated
-  HealthChecks invoke(String name, Handler<AsyncResult<JsonObject>> resultHandler);
-
-  /**
-   * Like {@link #invoke(String, Handler)} but with a future of the result.
    */
   Future<JsonObject> invoke(String name);
 
   /**
    * Invokes the registered procedures.
    *
-   * @param resultHandler the result handler, must not be {@code null}. The handler received the computed
-   *                      {@link CheckResult}.
-   * @deprecated use {@link #checkStatus()} instead
-   */
-  @Deprecated
-  void checkStatus(Handler<AsyncResult<CheckResult>> resultHandler);
-
-  /**
-   * Like {@link #checkStatus(Handler)} but returns a {@code Future} of the asynchronous result
+   * @return a future notified with the computed {@link CheckResult}.
    */
   Future<CheckResult> checkStatus();
 
   /**
    * Invokes the registered procedure with the given name and sub-procedures.
    *
-   * @param resultHandler the result handler, must not be {@code null}. The handler received an
-   *                      {@link AsyncResult} marked as failed if the procedure with the given name cannot
+   * @return a future notified with a failure if the procedure with the given name cannot
    *                      be found or invoked.
-   * @deprecated use {@link #checkStatus(String)} instead
-   */
-  @Deprecated
-  void checkStatus(String name, Handler<AsyncResult<CheckResult>> resultHandler);
-
-  /**
-   * Like {@link #checkStatus(String, Handler)} but returns a {@code Future} of the asynchronous result
    */
   Future<CheckResult> checkStatus(String name);
 
