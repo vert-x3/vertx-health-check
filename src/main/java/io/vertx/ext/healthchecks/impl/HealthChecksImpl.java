@@ -88,12 +88,13 @@ public class HealthChecksImpl implements HealthChecks {
 
   @Override
   public HealthChecks invoke(Handler<JsonObject> resultHandler) {
-    checkStatus(ar -> resultHandler.handle(ar.result().toJson()));
-    return this;
-  }
-
-  public HealthChecks invoke(String name, Handler<AsyncResult<JsonObject>> resultHandler) {
-    checkStatus(name, ar -> resultHandler.handle(ar.map(CheckResult::toJson)));
+    checkStatus().onComplete(ar -> {
+      if (ar.succeeded()) {
+        resultHandler.handle(ar.result().toJson());
+      } else {
+        resultHandler.handle(null);
+      }
+    });
     return this;
   }
 
@@ -109,20 +110,15 @@ public class HealthChecksImpl implements HealthChecks {
     return promise.future();
   }
 
-  public void checkStatus(Handler<AsyncResult<CheckResult>> resultHandler) {
+  public void checkStatus(Promise<CheckResult> resultHandler) {
     Promise<CheckResult> promise = ((ContextInternal)vertx.getOrCreateContext()).promise(resultHandler);
     compute(root, promise);
   }
 
   @Override
   public Future<CheckResult> checkStatus(String name) {
-    Promise<CheckResult> promise = ((ContextInternal)vertx.getOrCreateContext()).promise();
-    checkStatus(name, promise);
-    return promise.future();
-  }
-
-  public void checkStatus(String name, Handler<AsyncResult<CheckResult>> resultHandler) {
-    Promise<CheckResult> promise = ((ContextInternal)vertx.getOrCreateContext()).promise(resultHandler);
+    ContextInternal ctx = (ContextInternal) vertx.getOrCreateContext();
+    Promise<CheckResult> promise = ctx.promise();
     if (name == null || name.isEmpty() || name.equals("/")) {
       checkStatus(promise);
     } else {
@@ -136,24 +132,23 @@ public class HealthChecksImpl implements HealthChecks {
           check = ((CompositeProcedure) check).get(segment);
           if (check == null) {
             // Not found
-            promise.fail("Not found");
-            return;
+            return ctx.failedFuture("Not found");
           }
           // Else continue...
         } else {
           // Not a composite
-          promise.fail("'" + segment + "' is not a composite");
-          return;
+          return ctx.failedFuture("'" + segment + "' is not a composite");
         }
       }
 
       if (check == null) {
         // ????
         promise.handle(null);
-        return;
+        return ctx.succeededFuture();
       }
       compute(check, promise);
     }
+    return promise.future();
   }
 
   private CompositeProcedure findLastParent(String[] segments) {
