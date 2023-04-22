@@ -1,11 +1,15 @@
 package examples;
 
+import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpClient;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.HealthChecks;
 import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.web.Router;
+import io.vertx.servicediscovery.ServiceDiscovery;
+import io.vertx.servicediscovery.types.HttpEndpoint;
 
 /**
  * @author <a href="http://escoffier.me">Clement Escoffier</a>
@@ -106,6 +110,38 @@ public class HealthCheckExamples {
     });
 
     router.get("/health").handler(healthCheckHandler);
+  }
+
+  class SqlConnection {
+    Future<Void> close() {
+      return Future.succeededFuture();
+    }
+  }
+
+  class Pool {
+    Future<SqlConnection> getConnection() {
+      return Future.succeededFuture();
+    }
+  }
+
+  Pool pool;
+
+  public void pool(HealthCheckHandler handler) {
+    handler.register("database",
+        promise ->
+          pool.getConnection()
+          .compose(SqlConnection::close)
+          .<Status>mapEmpty()
+          .onComplete(promise));
+  }
+
+  public void httpEndPoint(ServiceDiscovery discovery, HealthCheckHandler handler) {
+    handler.register("my-service",
+        promise ->
+          HttpEndpoint.getClient(discovery, rec -> "my-service".equals(rec.getName()))
+          .compose(HttpClient::close)
+          .map(Status.OK())
+          .onComplete(promise));
   }
 
   public void eventbus(Vertx vertx, HealthCheckHandler handler) {
