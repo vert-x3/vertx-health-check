@@ -2,20 +2,16 @@ package io.vertx.ext.healthchecks.impl;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.vertx.ext.healthchecks.Status;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.jayway.awaitility.Awaitility.await;
 import static io.vertx.ext.healthchecks.Assertions.assertThatCheck;
-import static org.hamcrest.Matchers.is;
 
 /**
  * @author <a href="http://escoffier.me">Clement Escoffier</a>
@@ -32,10 +28,8 @@ public class DefaultCompositeHealthCheckTest {
   }
 
   @After
-  public void tearDown() {
-    AtomicBoolean done = new AtomicBoolean();
-    vertx.close().onComplete(v -> done.set(v.succeeded()));
-    await().untilAtomic(done, is(true));
+  public void tearDown(TestContext tc) {
+    vertx.close().onComplete(tc.asyncAssertSuccess());
   }
 
   @Test
@@ -46,10 +40,10 @@ public class DefaultCompositeHealthCheckTest {
 
     Async async = tc.async();
 
-    composite.check(json -> {
+    composite.check(json -> tc.verify(v -> {
       assertThatCheck(json).hasOutcomeDown();
       async.complete();
-    });
+    }));
   }
 
   @Test
@@ -60,10 +54,10 @@ public class DefaultCompositeHealthCheckTest {
 
     Async async = tc.async();
 
-    composite.check(json -> {
+    composite.check(json -> tc.verify(v -> {
       assertThatCheck(json).hasOutcomeDown();
       async.complete();
-    });
+    }));
   }
 
   @Test
@@ -74,10 +68,10 @@ public class DefaultCompositeHealthCheckTest {
 
     Async async = tc.async();
 
-    composite.check(json -> {
+    composite.check(json -> tc.verify(v -> {
       assertThatCheck(json).hasOutcomeUp();
       async.complete();
-    });
+    }));
   }
 
   @Test
@@ -88,10 +82,10 @@ public class DefaultCompositeHealthCheckTest {
 
     Async async = tc.async();
 
-    composite.check(json -> {
+    composite.check(json -> tc.verify(v -> {
       assertThatCheck(json).hasOutcomeDown();
       async.complete();
-    });
+    }));
   }
 
   @Test
@@ -105,10 +99,10 @@ public class DefaultCompositeHealthCheckTest {
 
     Async async = tc.async();
 
-    composite.check(json -> {
+    composite.check(json -> tc.verify(v -> {
       assertThatCheck(json).hasOutcomeDown();
       async.complete();
-    });
+    }));
   }
 
   @Test
@@ -122,10 +116,10 @@ public class DefaultCompositeHealthCheckTest {
 
     Async async = tc.async();
 
-    composite.check(json -> {
+    composite.check(json -> tc.verify(v -> {
       assertThatCheck(json).hasOutcomeDown();
       async.complete();
-    });
+    }));
   }
 
   @Test
@@ -142,10 +136,9 @@ public class DefaultCompositeHealthCheckTest {
 
     Async async = tc.async();
 
-    composite.check(json -> {
+    composite.check(json -> tc.verify(v -> {
       assertThatCheck(json).hasOutcomeDown();
       async.complete();
-    });
+    }));
   }
-
 }
