@@ -1,11 +1,11 @@
 package io.vertx.ext.healthchecks;
 
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.impl.JsonUtil;
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
 import java.util.Base64;
+import java.util.Map;
+
+import static java.util.Map.Entry;
 
 /**
  * Converter and mapper for {@link io.vertx.ext.healthchecks.Status}.
@@ -17,8 +17,8 @@ public class StatusConverter {
   private static final Base64.Decoder BASE64_DECODER = JsonUtil.BASE64_DECODER;
   private static final Base64.Encoder BASE64_ENCODER = JsonUtil.BASE64_ENCODER;
 
-  public static void fromJson(Iterable<java.util.Map.Entry<String, Object>> json, Status obj) {
-    for (java.util.Map.Entry<String, Object> member : json) {
+  public static void fromJson(Iterable<Entry<String, Object>> json, Status obj) {
+    for (Entry<String, Object> member : json) {
       switch (member.getKey()) {
         case "data":
           if (member.getValue() instanceof JsonObject) {
@@ -43,7 +43,7 @@ public class StatusConverter {
     toJson(obj, json.getMap());
   }
 
-  public static void toJson(Status obj, java.util.Map<String, Object> json) {
+  public static void toJson(Status obj, Map<String, Object> json) {
     if (obj.getData() != null) {
       json.put("data", obj.getData());
     }
