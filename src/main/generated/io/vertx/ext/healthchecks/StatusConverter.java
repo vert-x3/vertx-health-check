@@ -17,17 +17,17 @@ public class StatusConverter {
   private static final Base64.Decoder BASE64_DECODER = JsonUtil.BASE64_DECODER;
   private static final Base64.Encoder BASE64_ENCODER = JsonUtil.BASE64_ENCODER;
 
-  public static void fromJson(Iterable<java.util.Map.Entry<String, Object>> json, Status obj) {
+   static void fromJson(Iterable<java.util.Map.Entry<String, Object>> json, Status obj) {
     for (java.util.Map.Entry<String, Object> member : json) {
       switch (member.getKey()) {
-        case "data":
-          if (member.getValue() instanceof JsonObject) {
-            obj.setData(((JsonObject)member.getValue()).copy());
-          }
-          break;
         case "ok":
           if (member.getValue() instanceof Boolean) {
             obj.setOk((Boolean)member.getValue());
+          }
+          break;
+        case "data":
+          if (member.getValue() instanceof JsonObject) {
+            obj.setData(((JsonObject)member.getValue()).copy());
           }
           break;
         case "procedureInError":
@@ -39,15 +39,15 @@ public class StatusConverter {
     }
   }
 
-  public static void toJson(Status obj, JsonObject json) {
+   static void toJson(Status obj, JsonObject json) {
     toJson(obj, json.getMap());
   }
 
-  public static void toJson(Status obj, java.util.Map<String, Object> json) {
+   static void toJson(Status obj, java.util.Map<String, Object> json) {
+    json.put("ok", obj.isOk());
     if (obj.getData() != null) {
       json.put("data", obj.getData());
     }
-    json.put("ok", obj.isOk());
     json.put("procedureInError", obj.isProcedureInError());
   }
 }
