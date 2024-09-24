@@ -1,7 +1,9 @@
-package io.vertx.ext.healthchecks;
+package io.vertx.ext.healthchecks.tests;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.healthchecks.HealthChecks;
+import io.vertx.ext.healthchecks.Status;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.Repeat;
@@ -13,8 +15,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static io.vertx.ext.healthchecks.Assertions.assertThat;
-import static io.vertx.ext.healthchecks.Assertions.assertThatCheck;
+import static io.vertx.ext.healthchecks.tests.Assertions.assertThat;
+import static io.vertx.ext.healthchecks.tests.Assertions.assertThatCheck;
 
 /**
  * @author <a href="http://escoffier.me">Clement Escoffier</a>

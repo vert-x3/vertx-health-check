@@ -1,4 +1,4 @@
-package io.vertx.ext.healthchecks;
+package io.vertx.ext.healthchecks.tests;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;

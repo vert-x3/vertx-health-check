@@ -1,7 +1,8 @@
-package io.vertx.ext.healthchecks;
+package io.vertx.ext.healthchecks.tests;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.healthchecks.CheckResult;
 
 /**
  * @author <a href="http://escoffier.me">Clement Escoffier</a>

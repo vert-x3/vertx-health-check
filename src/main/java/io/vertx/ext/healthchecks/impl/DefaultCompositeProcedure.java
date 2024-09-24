@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author <a href="http://escoffier.me">Clement Escoffier</a>
  */
-class DefaultCompositeProcedure implements CompositeProcedure {
+public class DefaultCompositeProcedure implements CompositeProcedure {
 
   private Map<String, Procedure> children = new HashMap<>();
 
