@@ -13,7 +13,7 @@ import java.util.Objects;
 /**
  * @author <a href="http://escoffier.me">Clement Escoffier</a>
  */
-class DefaultProcedure implements Procedure {
+public class DefaultProcedure implements Procedure {
 
   private final Handler<Promise<Status>> handler;
   private final String name;
@@ -21,7 +21,7 @@ class DefaultProcedure implements Procedure {
   private final Vertx vertx;
   private final long timeout;
 
-  DefaultProcedure(Vertx vertx, String name, long timeout,
+  public DefaultProcedure(Vertx vertx, String name, long timeout,
                    Handler<Promise<Status>> handler) {
     Objects.requireNonNull(vertx);
     Objects.requireNonNull(name);
